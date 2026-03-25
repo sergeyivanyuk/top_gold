@@ -1,5 +1,13 @@
 import type { Metadata, Viewport } from 'next'
+import { Roboto_Condensed } from 'next/font/google'
 import './globals.css'
+import Image from 'next/image'
+
+const robotoCondensed = Roboto_Condensed({
+	weight: ['400', '700', '900'],
+	subsets: ['cyrillic', 'latin'],
+	variable: '--font-roboto-condensed'
+})
 
 export const viewport: Viewport = {
 	width: 'device-width',
@@ -10,12 +18,12 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-	title: 'Gold Roulette',
+	title: 'TopGold',
 	description: 'Крути рулетку и выигрывай золото!',
 	appleWebApp: {
 		capable: true,
 		statusBarStyle: 'black-translucent',
-		title: 'Gold Roulette'
+		title: 'TopGold'
 	},
 	manifest: '/manifest.json'
 }
@@ -23,7 +31,23 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang="ru">
-			<body className="min-h-screen bg-background text-foreground antialiased touch-manipulation">{children}</body>
+			<body className={`${robotoCondensed.variable} min-h-screen bg-background text-foreground antialiased touch-manipulation`}>
+				{/* Хедер */}
+				<header className="p-4 safe-area-top">
+					<div className="flex items-center justify-center">
+						<div className="relative w-[203px] h-[40px]">
+							<Image
+								src="/logo.svg"
+								alt="Logo"
+								fill
+								sizes="203px"
+								className="object-contain w-full h-full"
+							/>
+						</div>
+					</div>
+				</header>
+				{children}
+			</body>
 		</html>
 	)
 }

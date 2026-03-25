@@ -1,46 +1,80 @@
 'use client'
 
 import { Roulette } from '@/components/Roulette'
-import { WinnersList } from '@/components/WinnersList'
+import { StatCard } from '@/components/ui/StatCard'
+import { ROULETTE_NUMBER_GRADIENT, ROULETTE_SHADOW_GRADIENT } from '@/lib/constants'
 import { useRouletteStore } from '@/lib/store/roulette'
-import { Settings, TrendingUp } from 'lucide-react'
 
 export default function Home() {
-	const { totalSpins, totalGoldWon } = useRouletteStore()
+	const { totalSpins, totalGoldWon, remainingSpins } = useRouletteStore()
 
 	return (
-		<main className="min-h-screen flex flex-col">
-			{/* Header */}
-			<header className="p-4 safe-area-top">
-				<div className="flex items-center justify-between">
-					<h1 className="text-xl font-bold text-gold">Gold Roulette</h1>
-					<button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
-						<Settings className="w-5 h-5 text-gray-400" />
-					</button>
-				</div>
-			</header>
-
+		<main className=" flex flex-col">
 			{/* Статистика */}
-			<div className="px-4 py-2 flex gap-4 overflow-x-auto">
-				<div className="flex items-center gap-2 bg-gray-800/50 px-4 py-2 rounded-lg">
-					<TrendingUp className="w-4 h-4 text-gold" />
-					<span className="text-sm text-gray-400">Вращений:</span>
-					<span className="font-bold">{totalSpins}</span>
+			{remainingSpins > 0 && (
+				<div className="px-4 py-2 flex justify-center">
+					<div className="flex items-center gap-5 px-5 py-1 bg-radial-gold rounded-card border-gold-light outline-offset-[-1px] mb-7.5">
+						<span className="text-secondary-title">Вращений осталось:</span>
+						<p className="text-center justify-center flex flex-col">
+							<span className="relative inline-block h-[40px]">
+								{/* Тень */}
+								<span
+									className="absolute top-0 left-0 translate-x-[2px] translate-y-[3px] font-extrabold text-[35px] uppercase"
+									style={{
+										backgroundImage: ROULETTE_SHADOW_GRADIENT,
+										WebkitBackgroundClip: 'text',
+										WebkitTextFillColor: 'transparent',
+										backgroundClip: 'text',
+										color: 'transparent',
+										fontFamily: 'var(--font-roboto-condensed), Roboto Condensed, sans-serif',
+										lineHeight: '35px',
+										letterSpacing: '0.35px'
+									}}
+								>
+									{remainingSpins}
+								</span>
+								{/* Основной текст */}
+								<span
+									className="relative font-extrabold text-[35px] uppercase underline"
+									style={{
+										backgroundImage: ROULETTE_NUMBER_GRADIENT,
+										WebkitBackgroundClip: 'text',
+										WebkitTextFillColor: 'transparent',
+										backgroundClip: 'text',
+										color: 'transparent',
+										fontFamily: 'var(--font-roboto-condensed), Roboto Condensed, sans-serif',
+										lineHeight: '35px',
+										letterSpacing: '0.35px',
+										textDecorationColor: 'inherit'
+									}}
+								>
+									{remainingSpins}
+								</span>
+							</span>
+						</p>
+					</div>
 				</div>
-				<div className="flex items-center gap-2 bg-gray-800/50 px-4 py-2 rounded-lg">
-					<span className="text-sm text-gray-400">Всего золота:</span>
-					<span className="font-bold text-gold">{totalGoldWon.toLocaleString()}</span>
-				</div>
-			</div>
+			)}
 
 			{/* Рулетка */}
-			<div className="flex-1 flex items-center justify-center py-4">
+			<div className="flex-1 flex items-center justify-center">
 				<Roulette />
 			</div>
-
-			{/* Победители */}
-			<div className="p-4 safe-area-bottom">
-				<WinnersList />
+			{/* Дополнительная статистика */}
+			<div className="py-2 px-1 grid grid-cols-2 gap-2.5 mt-10">
+				<StatCard
+					iconSrc="/users.svg"
+					iconAlt="Игроки"
+					label="Игроков сегодня"
+					value="1482"
+				/>
+				<StatCard
+					iconSrc="/golds.svg"
+					iconAlt="Голда"
+					label="Голды выдано"
+					value="13 560 950"
+					labelClassName="text-secondary-title"
+				/>
 			</div>
 		</main>
 	)

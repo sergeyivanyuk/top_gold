@@ -1,15 +1,17 @@
 import type { RouletteSegment } from '@/types/roulette'
 
-// Цвета в hex для использования в conic-gradient
+// Цвета сегментов с градиентами
 const COLORS = {
-	gold: ['#ca8a04', '#a16207'], // yellow-600 to yellow-800
-	black: ['#1f2937', '#0f172a'], // gray-800 to gray-950
-	blue: ['#2563eb', '#1e40af'], // blue-600 to blue-800
-	red: ['#dc2626', '#991b1b'] // red-600 to red-800
+	gold: 'linear-gradient(180deg, #FFB81F 9%, #A25A1E 38%, #935C14 55%, #5D3E15 90%)',
+	black: 'linear-gradient(180deg, #493C2C 9%, #5E411D 33%, #401F0B 55%, #140501 90%)',
+	blue: 'linear-gradient(180deg, #124472 9%, #1E3469 33%, #2B1C61 55%, #1D003E 90%)',
+	red: 'linear-gradient(180deg, #C35B15 9%, #D34415 33%, #C42A03 55%, #830000 90%)'
 }
 
+// Border для всех сегментов
+export const SEGMENT_BORDER = '2px rgba(255, 233.54, 111.93, 0.90) solid'
+
 // Сегменты рулетки (10 сегментов)
-// Перемешаны: черный → синий → красный → черный → синий → красный → черный → синий → красный → золотой
 export const ROULETTE_SEGMENTS: RouletteSegment[] = [
 	// Черный - 3000 (3 штуки)
 	{ id: 'black1', label: '3000', gold: 3000, color: 'black', gradient: COLORS.black, probability: 10 },

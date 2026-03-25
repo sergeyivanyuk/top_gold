@@ -5,7 +5,7 @@ export interface RouletteSegment {
 	label: string
 	gold: number
 	color: string // ключ цвета (gold, black, blue, red)
-	gradient: string[] // [startColor, endColor]
+	gradient: string // gradient string
 	probability: number // 0-100, используется для подкрутки
 }
 

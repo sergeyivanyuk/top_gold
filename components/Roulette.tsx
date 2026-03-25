@@ -4,8 +4,11 @@ import { Button } from '@/components/ui/Button'
 import { getRandomSegment, ROULETTE_CONFIG, ROULETTE_SEGMENTS } from '@/config/roulette'
 import { useRouletteStore } from '@/lib/store/roulette'
 import { cn } from '@/lib/utils'
-import { RotateCcw, Trophy } from 'lucide-react'
+import { RotateCcw } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { ExtraSpinModal } from './roulette/ExtraSpinModal'
+import { Wheel } from './roulette/Wheel'
+import { WinModal } from './roulette/WinModal'
 
 interface RouletteProps {
 	onWin?: (gold: number, segment: string) => void
@@ -18,8 +21,9 @@ export function Roulette({ onWin }: RouletteProps) {
 	const [selectedSegment, setSelectedSegment] = useState<string | null>(null)
 	const [showWinModal, setShowWinModal] = useState(false)
 	const [winAmount, setWinAmount] = useState(0)
+	const [showExtraSpinModal, setShowExtraSpinModal] = useState(false)
 
-	const { addWinner, incrementSpins, addGold } = useRouletteStore()
+	const { addWinner, incrementSpins, addGold, remainingSpins, totalSpins, decrementRemainingSpins } = useRouletteStore()
 
 	// Подкрутка (для админа)
 	const [overrideSegment, setOverrideSegment] = useState<string | null>(null)
@@ -28,6 +32,15 @@ export function Roulette({ onWin }: RouletteProps) {
 
 	const spinWheel = () => {
 		if (isSpinning) return
+
+		// Определяем, является ли это бесплатное вращение (первое и единственное, которое даётся при входе)
+		const isFreeSpin = totalSpins === 0 && remainingSpins === 1
+
+		// Если нет оставшихся вращений и уже был хотя бы один спин (не бесплатный спин) - показываем предложение купить вращения без спина
+		if (!isFreeSpin && remainingSpins === 0) {
+			setShowExtraSpinModal(true)
+			return
+		}
 
 		setIsSpinning(true)
 		setSelectedSegment(null)
@@ -80,11 +93,13 @@ export function Roulette({ onWin }: RouletteProps) {
 				setIsSpinning(false)
 				setSelectedSegment(actualWinningSegment.id)
 				setWinAmount(actualWinningSegment.gold)
-				setShowWinModal(true)
 
 				// Обновляем статистику
 				incrementSpins()
 				addGold(actualWinningSegment.gold)
+				if (remainingSpins > 0) {
+					decrementRemainingSpins()
+				}
 
 				// Добавляем победителя
 				const winner = {
@@ -100,90 +115,43 @@ export function Roulette({ onWin }: RouletteProps) {
 
 				// Сбрасываем подкрутку после использования
 				setOverrideSegment(null)
+
+				// Определяем, какое модальное окно показать
+				// Если это бесплатное вращение - показываем бонусное вращение, иначе обычное окно выигрыша
+				if (isFreeSpin) {
+					setShowExtraSpinModal(true)
+				} else {
+					setShowWinModal(true)
+				}
 			}
 		}
 
 		requestAnimationFrame(animate)
 	}
+	const handleCloseWinModal = () => {
+		setShowWinModal(false)
+		// С вероятностью 10% показать окно дополнительного вращения (только если есть вращения)
+		if (remainingSpins > 0 && Math.random() < 0.1) {
+			setShowExtraSpinModal(true)
+		}
+	}
 
 	return (
-		<div className="flex flex-col items-center gap-6 w-full max-w-md mx-auto p-4">
+		<div className="flex flex-col items-center gap-6 w-full max-w-md mx-auto px-4">
 			{/* Колесо рулетки */}
-			<div className="relative">
-				{/* Указатель */}
-				<div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-					<div className="w-0 h-0 border-l-[20px] border-l-transparent border-r-[20px] border-r-transparent border-t-[30px] border-t-gold drop-shadow-lg" />
-				</div>
-
-				{/* Колесо */}
-				<div
-					ref={wheelRef}
-					className="relative w-72 h-72 md:w-80 md:h-80 rounded-full shadow-2xl border-4 border-gold/30 overflow-hidden"
-					style={{ transform: `rotate(${rotation}deg)` }}
-				>
-					{/* Сегменты через conic-gradient */}
-					<div
-						className="absolute inset-0"
-						style={{
-							background: `conic-gradient(${ROULETTE_SEGMENTS.map(
-								(s, i) => `${s.gradient[0]} ${i * segmentAngle}deg ${(i + 1) * segmentAngle}deg`
-							).join(', ')})`
-						}}
-					/>
-
-					{/* Текст на сегментах */}
-					{ROULETTE_SEGMENTS.map((segment, index) => (
-						<div
-							key={segment.id}
-							className="absolute inset-0 flex items-center justify-center"
-							style={{
-								transform: `rotate(${index * segmentAngle + segmentAngle / 2}deg)`
-							}}
-						>
-							<span
-								className="font-bold text-lg drop-shadow-md"
-								style={{
-									transform: 'translateY(-110px)',
-									background: 'linear-gradient(to bottom, #ffe680, #cc7a08)',
-									WebkitBackgroundClip: 'text',
-									WebkitTextFillColor: 'transparent',
-									backgroundClip: 'text'
-								}}
-							>
-								{segment.label}
-							</span>
-						</div>
-					))}
-
-					{/* Разделительные линии */}
-					{ROULETTE_SEGMENTS.map((_, index) => (
-						<div
-							key={`line-${index}`}
-							className="absolute inset-0 pointer-events-none"
-							style={{
-								transform: `rotate(${index * segmentAngle}deg)`
-							}}
-						>
-							<div className="absolute left-1/2 top-0 w-[2px] h-1/2 -translate-x-1/2 bg-gradient-to-b from-yellow-400 via-yellow-600 to-yellow-400" />
-						</div>
-					))}
-
-					{/* Центральный круг */}
-					<div className="absolute inset-0 m-auto w-20 h-20 bg-gray-900 rounded-full" />
-				</div>
-
-				{/* Центр колеса */}
-				<div className="absolute inset-0 m-auto w-16 h-16 bg-gray-900 rounded-full border-4 border-gold flex items-center justify-center shadow-lg z-10">
-					<Trophy className="w-8 h-8 text-gold" />
-				</div>
-			</div>
+			<Wheel
+				rotation={rotation}
+				isSpinning={isSpinning}
+				segmentAngle={segmentAngle}
+			/>
 
 			{/* Кнопка вращения */}
 			<Button
 				onClick={spinWheel}
 				disabled={isSpinning}
-				size="lg"
-				className={cn('w-full', isSpinning && 'opacity-50 cursor-not-allowed')}
+				variant="gold"
+				size="xl"
+				className={cn('w-full', isSpinning && 'opacity-50 cursor-not-allowed', !isSpinning && 'animate-pulse-gold')}
 			>
 				{isSpinning ? (
 					<span className="flex items-center gap-2">
@@ -194,9 +162,10 @@ export function Roulette({ onWin }: RouletteProps) {
 					'Крутить рулетку'
 				)}
 			</Button>
+			<div className="text-guarantee">Гарантированная награда при каждом вращении</div>
 
 			{/* Панель подкрутки (для тестирования) */}
-			{process.env.NODE_ENV === 'development' && (
+			{/* {process.env.NODE_ENV === 'development' && (
 				<div className="w-full p-4 bg-gray-800/50 rounded-lg">
 					<p className="text-xs text-gray-400 mb-2">Подкрутка (dev only):</p>
 					<div className="flex flex-wrap gap-2">
@@ -212,30 +181,20 @@ export function Roulette({ onWin }: RouletteProps) {
 						))}
 					</div>
 				</div>
-			)}
+			)} */}
 
 			{/* Модальное окно выигрыша */}
-			{showWinModal && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-					<div
-						className="absolute inset-0 bg-black/60 backdrop-blur-xs"
-						onClick={() => setShowWinModal(false)}
-					/>
-					<div className="relative bg-gray-900 rounded-2xl p-4 text-center border-2 border-gold  max-w-sm w-full">
-						<h2 className="text-2xl font-bold text-gold mb-2 uppercase">Вы выиграли!</h2>
-						<p className="text-white mb-4">Выйгрыш будет начислен на ваш аккаунт в течении 24 часов!</p>
-						<div className="w-full h-[0.3px] bg-[#8f7651] mb-4"></div>
-						<div className="text-5xl font-bold text-gold">{winAmount} 🪙</div>
-						<div className="w-full uppercase text-white font-semibold flex items-center justify-center mb-5">ГОЛДЫ</div>
-						<Button
-							onClick={() => setShowWinModal(false)}
-							className="w-full"
-						>
-							Забрать и продолжить
-						</Button>
-					</div>
-				</div>
-			)}
+			<WinModal
+				isOpen={showWinModal}
+				onClose={handleCloseWinModal}
+				winAmount={winAmount}
+			/>
+
+			{/* Модальное окно дополнительного вращения */}
+			<ExtraSpinModal
+				isOpen={showExtraSpinModal}
+				onClose={() => setShowExtraSpinModal(false)}
+			/>
 		</div>
 	)
 }
