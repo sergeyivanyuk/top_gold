@@ -1,0 +1,44 @@
+{
+	"stats": {
+		"playersToday": "1482",
+		"goldIssued": "13 560 950"
+	},
+	"recentWins": [
+		{
+			"username": "PlayerX",
+			"gold": "12 500"
+		},
+		{
+			"username": "LuckyBoy",
+			"gold": "8 300"
+		},
+		{
+			"username": "GoldHunter",
+			"gold": "25 000"
+		},
+		{
+			"username": "Winner777",
+			"gold": "5 600"
+		},
+		{
+			"username": "ProGamer",
+			"gold": "15 200"
+		},
+		{
+			"username": "GoldHunter",
+			"gold": "25 000"
+		},
+		{
+			"username": "Winner777",
+			"gold": "5 600"
+		},
+		{
+			"username": "ProGamer",
+			"gold": "15 200"
+		}
+	],
+	"roulette": {
+		"_comment": "Настройка подкрутки рулетки. overrideSegmentId: ID сегмента, на который будет подкручиваться рулетка. Возможные значения: 'gold', 'black1', 'black2', 'black3', 'blue1', 'blue2', 'blue3', 'red1', 'red2', 'red3'. Установите null для отключения подкрутки.",
+		"overrideSegmentId": "gold"
+	}
+}

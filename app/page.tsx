@@ -2,6 +2,7 @@
 
 import { Roulette } from '@/components/Roulette'
 import { StatCard } from '@/components/ui/StatCard'
+import constants from '@/data/constants.json'
 import { ROULETTE_NUMBER_GRADIENT, ROULETTE_SHADOW_GRADIENT } from '@/lib/constants'
 import { useRouletteStore } from '@/lib/store/roulette'
 
@@ -66,13 +67,13 @@ export default function Home() {
 					iconSrc="/users.svg"
 					iconAlt="Игроки"
 					label="Игроков сегодня"
-					value="1482"
+					value={constants.stats.playersToday}
 				/>
 				<StatCard
 					iconSrc="/golds.svg"
 					iconAlt="Голда"
 					label="Голды выдано"
-					value="13 560 950"
+					value={constants.stats.goldIssued}
 					labelClassName="text-secondary-title"
 				/>
 			</div>

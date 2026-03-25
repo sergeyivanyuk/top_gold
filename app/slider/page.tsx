@@ -1,14 +1,51 @@
 'use client'
 
+import constants from '@/data/constants.json'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 export default function SliderPage() {
 	const [currentSlide, setCurrentSlide] = useState(1) // 0-based index, но слайдер на 2 слайдере (индекс 1)
 	const [touchStartX, setTouchStartX] = useState<number | null>(null)
+	const [dragOffset, setDragOffset] = useState(0)
+	const [isDragging, setIsDragging] = useState(false)
+	const [startX, setStartX] = useState(0)
+	const [hintOffset, setHintOffset] = useState(0)
+	const [hintActive, setHintActive] = useState(true)
+	const [currentWinIndex, setCurrentWinIndex] = useState(0)
+	const [isResetting, setIsResetting] = useState(false)
 	const router = useRouter()
+
+	// Создаём расширенный массив для бесконечной анимации
+	const extendedWins = React.useMemo(() => {
+		return [...constants.recentWins, ...constants.recentWins.slice(0, 3)]
+	}, [constants.recentWins])
+
+	// Анимация ротации последних выигрышей
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setCurrentWinIndex(prev => {
+				const next = prev + 1
+				// Если дошли до конца оригинального массива, сбросим на 0
+				if (next > constants.recentWins.length) {
+					setIsResetting(true)
+					return 0
+				}
+				return next
+			})
+		}, 2000) // каждые 2 секунды
+		return () => clearInterval(interval)
+	}, [constants.recentWins.length])
+
+	// После сброса включаем обратно transition
+	useEffect(() => {
+		if (isResetting) {
+			const timer = setTimeout(() => setIsResetting(false), 50)
+			return () => clearTimeout(timer)
+		}
+	}, [isResetting])
 
 	const slides = [
 		{
@@ -66,21 +103,71 @@ export default function SliderPage() {
 	}
 
 	const handleTouchStart = (e: React.TouchEvent) => {
-		setTouchStartX(e.touches[0].clientX)
+		const x = e.touches[0].clientX
+		setTouchStartX(x)
+		setStartX(x)
+		setIsDragging(true)
+		setDragOffset(0)
+	}
+
+	const handleTouchMove = (e: React.TouchEvent) => {
+		if (!isDragging) return
+		const currentX = e.touches[0].clientX
+		const diff = currentX - startX
+		setDragOffset(diff)
 	}
 
 	const handleTouchEnd = (e: React.TouchEvent) => {
-		if (!touchStartX) return
+		if (!isDragging) return
+		setIsDragging(false)
 		const touchEndX = e.changedTouches[0].clientX
-		const distance = touchStartX - touchEndX
+		const distance = touchEndX - startX
 		const swipeThreshold = 50
 		if (distance > swipeThreshold) {
 			nextSlide()
 		} else if (distance < -swipeThreshold) {
 			prevSlide()
 		}
+		setDragOffset(0)
 		setTouchStartX(null)
 	}
+
+	// Анимация-подсказка свайпа для первого слайда (индекс 1) в течение 60 секунд
+	useEffect(() => {
+		if (!hintActive) return
+		const duration = 60000 // 60 секунд
+		const interval = 200 // смена направления каждые 0.2 секунды
+		let direction = 1 // 1 для вправо, -1 для влево
+		let elapsed = 0
+
+		const hintInterval = setInterval(() => {
+			setHintOffset(prev => {
+				// Меняем направление при достижении ±5px
+				const newOffset = prev + direction * 2
+				if (Math.abs(newOffset) > 5) {
+					direction *= -1
+					return prev + direction * 2
+				}
+				return newOffset
+			})
+			elapsed += interval
+			if (elapsed >= duration) {
+				clearInterval(hintInterval)
+				setHintActive(false)
+				setHintOffset(0)
+			}
+		}, interval)
+
+		return () => clearInterval(hintInterval)
+	}, [hintActive])
+
+	// Остановка анимации при переключении слайда
+	useEffect(() => {
+		if (currentSlide !== 1 && hintActive) {
+			setHintActive(false)
+			setHintOffset(0)
+		}
+	}, [currentSlide, hintActive])
 
 	const getSlideStyle = (index: number) => {
 		const diff = index - currentSlide
@@ -99,7 +186,7 @@ export default function SliderPage() {
 			zIndex = 30
 		} else if (absDiff === 1) {
 			// соседние слайды
-			translateX = diff * 70 // процентов от ширины слайда
+			translateX = diff * 90 // процентов от ширины слайда
 			scale = 0.85
 			opacity = 0.7
 			zIndex = 20
@@ -111,11 +198,25 @@ export default function SliderPage() {
 			zIndex = 10
 		}
 
+		// Добавляем смещение от драга
+		let dragTranslate = 0
+		if (isDragging) {
+			// dragOffset в пикселях, переводим в проценты относительно ширины слайда (примерно 280px)
+			// Для простоты добавим как translateX в пикселях
+			dragTranslate = dragOffset
+		}
+
+		// Добавляем смещение для анимации-подсказки (только для слайда с индексом 1)
+		let hintTranslate = 0
+		if (hintActive && index === 1 && !isDragging) {
+			hintTranslate = hintOffset
+		}
+
 		return {
-			transform: `translateX(${translateX}%) scale(${scale})`,
+			transform: `translateX(${translateX}%) translateX(${dragTranslate}px) translateX(${hintTranslate}px) scale(${scale})`,
 			opacity,
 			zIndex,
-			transition: 'transform 0.3s, opacity 0.3s'
+			transition: isDragging ? 'none' : 'transform 0.3s, opacity 0.3s'
 		}
 	}
 
@@ -129,6 +230,7 @@ export default function SliderPage() {
 			<div
 				className="relative w-full max-w-4xl overflow-visible h-[500px]"
 				onTouchStart={handleTouchStart}
+				onTouchMove={handleTouchMove}
 				onTouchEnd={handleTouchEnd}
 			>
 				<div className="flex items-center justify-center h-full relative">
@@ -239,49 +341,34 @@ export default function SliderPage() {
 					<span className="text-center text-secondary-title">Работаем с 2023 года</span>
 				</div>
 			</div>
-			{/* Блок "Последние выигрыши" */}
+			{/* Блок "Последние выигрыши" с анимацией */}
 			<div className="flex flex-col items-center px-6 py-4 rounded-card mt-5 w-full bg-radial-gold border-gold-light outline-offset-[-1px]">
 				<span className="text-center text-secondary-title mb-2.5">Последние выигрыши</span>
-				<div className="items w-full flex flex-col gap-3">
-					<div className="flex items-center justify-between w-full">
-						<span className="text-center text-base font-medium text-white">User213123123</span>
-						<div className="flex items-center">
-							<span className="text-stat-value">11 150</span>
-							<Image
-								src="/golds.svg"
-								alt="голда"
-								width={20}
-								height={20}
-							/>
-						</div>
+				<div className="items w-full flex flex-col gap-3 h-[180px] overflow-hidden relative">
+					<div
+						className={isResetting ? '' : 'transition-transform duration-200'}
+						style={{ transform: `translateY(-${currentWinIndex * 60}px)` }}
+					>
+						{extendedWins.map((win, index) => (
+							<React.Fragment key={index}>
+								<div className="flex items-center justify-between w-full h-[60px]">
+									<span className="text-center text-base font-medium text-white">{win.username}</span>
+									<div className="flex items-center">
+										<span className="text-stat-value">{win.gold}</span>
+										<Image
+											src="/golds.svg"
+											alt="голда"
+											width={20}
+											height={20}
+										/>
+									</div>
+								</div>
+								{index < extendedWins.length - 1 && (
+									<div className="self-stretch h-0 opacity-50 outline-1 outline-offset-[-0.50px] outline-orange-300" />
+								)}
+							</React.Fragment>
+						))}
 					</div>
-					<div className="self-stretch h-0 opacity-50 outline-1 outline-offset-[-0.50px] outline-orange-300" />
-					<div className="flex items-center justify-between w-full">
-						<span className="text-center text-base font-medium text-white">User213123123</span>
-						<div className="flex items-center">
-							<span className="text-stat-value">11 150</span>
-							<Image
-								src="/golds.svg"
-								alt="голда"
-								width={20}
-								height={20}
-							/>
-						</div>
-					</div>
-					<div className="self-stretch h-0 opacity-50 outline-1 outline-offset-[-0.50px] outline-orange-300" />
-					<div className="flex items-center justify-between w-full">
-						<span className="text-center text-base font-medium text-white">User213123123</span>
-						<div className="flex items-center">
-							<span className="text-stat-value">11 150</span>
-							<Image
-								src="/golds.svg"
-								alt="голда"
-								width={20}
-								height={20}
-							/>
-						</div>
-					</div>
-					<div className="self-stretch h-0 opacity-50 outline-1 outline-offset-[-0.50px] outline-orange-300" />
 				</div>
 			</div>
 		</main>

@@ -91,7 +91,14 @@ function PaymentContent() {
 					<div className="flex items-center gap-2">
 						<span className="block w-2 h-2 rounded-full bg-bullet-gradient"></span>
 						<span className="text-guaranteed-reward">
-							{spins} {spins === 1 ? 'вращение' : 'вращения'} рулетки{bonusSpins > 0 ? ` +${bonusSpins}` : ''}
+							{spins + bonusSpins}{' '}
+							{(() => {
+								const total = spins + bonusSpins
+								if (total % 10 === 1 && total % 100 !== 11) return 'вращение'
+								if (total % 10 >= 2 && total % 10 <= 4 && (total % 100 < 10 || total % 100 >= 20)) return 'вращения'
+								return 'вращений'
+							})()}{' '}
+							рулетки
 						</span>
 					</div>
 				</div>
@@ -101,7 +108,10 @@ function PaymentContent() {
 				<span className="text-center mb-5 text-secondary-title">Выберите способ оплаты</span>
 				{/* радио инпуты */}
 				<div className="flex flex-col items-center w-full gap-2">
-					<div className="flex w-full items-center justify-between gap-2 py-5 px-5 rounded-4xl border-gold bg-radial-gold">
+					<div
+						className={`flex w-full items-center justify-between gap-2 py-5 px-5 rounded-4xl bg-radial-gold cursor-pointer ${selectedPayment === 'sbp' ? 'border-gold-active' : 'border-gold'}`}
+						onClick={() => setSelectedPayment('sbp')}
+					>
 						<div className="flex items-center gap-1.5">
 							<input
 								type="radio"
@@ -127,7 +137,10 @@ function PaymentContent() {
 							height={30}
 						/>
 					</div>
-					<div className="flex w-full items-center justify-between gap-2 py-5 px-5 rounded-4xl border-gold bg-radial-gold">
+					<div
+						className={`flex w-full items-center justify-between gap-2 py-5 px-5 rounded-4xl bg-radial-gold cursor-pointer ${selectedPayment === 'card' ? 'border-gold-active' : 'border-gold'}`}
+						onClick={() => setSelectedPayment('card')}
+					>
 						<div className="flex items-center gap-1.5">
 							<input
 								type="radio"

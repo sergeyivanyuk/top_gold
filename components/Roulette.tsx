@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/Button'
 import { getRandomSegment, ROULETTE_CONFIG, ROULETTE_SEGMENTS } from '@/config/roulette'
+import constants from '@/data/constants.json'
 import { useRouletteStore } from '@/lib/store/roulette'
 import { cn } from '@/lib/utils'
 import { RotateCcw } from 'lucide-react'
@@ -25,8 +26,10 @@ export function Roulette({ onWin }: RouletteProps) {
 
 	const { addWinner, incrementSpins, addGold, remainingSpins, totalSpins, decrementRemainingSpins } = useRouletteStore()
 
-	// Подкрутка (для админа)
-	const [overrideSegment, setOverrideSegment] = useState<string | null>(null)
+	// Подкрутка (для админа) - значение берётся из конфигурационного файла data/constants.json
+	// Возможные значения: 'gold', 'black1', 'black2', 'black3', 'blue1', 'blue2', 'blue3', 'red1', 'red2', 'red3'
+	// null - отключить подкрутку
+	const [overrideSegment, setOverrideSegment] = useState<string | null>(constants.roulette.overrideSegmentId)
 
 	const segmentAngle = 360 / ROULETTE_SEGMENTS.length
 
@@ -35,12 +38,6 @@ export function Roulette({ onWin }: RouletteProps) {
 
 		// Определяем, является ли это бесплатное вращение (первое и единственное, которое даётся при входе)
 		const isFreeSpin = totalSpins === 0 && remainingSpins === 1
-
-		// Если нет оставшихся вращений и уже был хотя бы один спин (не бесплатный спин) - показываем предложение купить вращения без спина
-		if (!isFreeSpin && remainingSpins === 0) {
-			setShowExtraSpinModal(true)
-			return
-		}
 
 		setIsSpinning(true)
 		setSelectedSegment(null)
@@ -60,9 +57,25 @@ export function Roulette({ onWin }: RouletteProps) {
 		const segmentCenterAngle = segmentIndex * segmentAngle + segmentAngle / 2
 
 		// Добавляем несколько полных оборотов + небольшое случайное смещение внутри сегмента
-		const spins = ROULETTE_CONFIG.MIN_SPINS + Math.floor(Math.random() * 3)
-		const randomOffset = (Math.random() - 0.5) * segmentAngle * 0.6 // ±30% от сегмента
-		const totalRotation = rotation + spins * 360 + (360 - segmentCenterAngle) + randomOffset
+		let spins = ROULETTE_CONFIG.MIN_SPINS
+		let randomOffset = (Math.random() - 0.5) * segmentAngle * 0.6 // ±30% от сегмента
+
+		// Если включена подкрутка, убираем случайности для точного попадания
+		if (overrideSegment) {
+			spins = ROULETTE_CONFIG.MIN_SPINS // фиксированное количество оборотов
+			randomOffset = 0 // без смещения
+		} else {
+			spins += Math.floor(Math.random() * 3) // добавляем случайные обороты для естественности
+		}
+
+		// Точное вычисление угла для гарантированного попадания в сегмент (особенно при подкрутке)
+		const currentMod = rotation % 360
+		const desiredMod = (360 - segmentCenterAngle) % 360
+		let diff = (desiredMod - currentMod + 360) % 360
+		// Если diff равен 0, добавляем полный оборот, чтобы колесо всё равно повернулось
+		if (diff === 0) diff = 360
+
+		const totalRotation = rotation + spins * 360 + diff + randomOffset
 
 		// Анимация
 		const duration = ROULETTE_CONFIG.SPIN_DURATION
@@ -113,16 +126,10 @@ export function Roulette({ onWin }: RouletteProps) {
 
 				onWin?.(actualWinningSegment.gold, actualWinningSegment.label)
 
-				// Сбрасываем подкрутку после использования
-				setOverrideSegment(null)
+				// Подкрутка остаётся (не сбрасываем)
 
-				// Определяем, какое модальное окно показать
-				// Если это бесплатное вращение - показываем бонусное вращение, иначе обычное окно выигрыша
-				if (isFreeSpin) {
-					setShowExtraSpinModal(true)
-				} else {
-					setShowWinModal(true)
-				}
+				// Всегда показываем окно выигрыша
+				setShowWinModal(true)
 			}
 		}
 
@@ -130,10 +137,8 @@ export function Roulette({ onWin }: RouletteProps) {
 	}
 	const handleCloseWinModal = () => {
 		setShowWinModal(false)
-		// С вероятностью 10% показать окно дополнительного вращения (только если есть вращения)
-		if (remainingSpins > 0 && Math.random() < 0.1) {
-			setShowExtraSpinModal(true)
-		}
+		// После закрытия окна выигрыша показываем бонусное окно
+		setShowExtraSpinModal(true)
 	}
 
 	return (

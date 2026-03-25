@@ -294,6 +294,11 @@
 		border: 2px rgba(255, 233.54, 111.93, 0.9) solid;
 	}
 
+	.border-gold-active {
+		border: 3px solid #f9a505;
+		box-shadow: 0 0 10px rgba(249, 165, 5, 0.5);
+	}
+
 	.border-gold-light {
 		border: 1px rgba(255, 233.54, 111.93, 0.8) solid;
 	}
@@ -627,4 +632,273 @@ select {
 
 .safe-area-bottom {
 	padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+/* Медиазапрос для экранов менее 400px */
+@media (max-width: 399px) {
+	h1.text-2xl.text-white {
+		font-size: 20px !important;
+		line-height: 20px !important;
+	}
+	.text-gold-title {
+		font-size: 28px;
+		line-height: 28px;
+	}
+
+	.text-secondary-title {
+		font-size: 16px;
+		line-height: 16px;
+	}
+
+	.text-white-title {
+		font-size: 24px;
+		line-height: 24px;
+	}
+
+	.text-win-title {
+		font-size: 24px;
+		line-height: 24px;
+	}
+
+	.text-big-gold {
+		font-size: 60px;
+		line-height: 60px;
+	}
+
+	.text-stat-value {
+		font-size: 22px;
+		line-height: 22px;
+	}
+
+	.text-what-you-get {
+		font-size: 24px !important;
+		line-height: 24px !important;
+	}
+
+	.text-slide-title {
+		font-size: 28px;
+		line-height: 28px;
+	}
+
+	.text-slide-main {
+		font-size: 28px;
+		line-height: 28px;
+	}
+
+	.text-slide-price {
+		font-size: 32px;
+	}
+
+	.btn-gold-slide {
+		font-size: 24px;
+		line-height: 24px;
+		padding: 12px;
+	}
+
+	/* Уменьшение отступов в блоках */
+	.py-5 {
+		padding-top: 1rem !important;
+		padding-bottom: 1rem !important;
+	}
+
+	.px-5 {
+		padding-left: 1rem !important;
+		padding-right: 1rem !important;
+	}
+
+	/* Уменьшение размеров кнопок навигации */
+	.btn-nav {
+		width: 32px;
+		height: 32px;
+		padding: 8px;
+	}
+
+	/* Уменьшение размеров иконок */
+	.w-24.h-24 {
+		width: 64px !important;
+		height: 64px !important;
+	}
+
+	.text-slide-bonus {
+		font-size: 16px;
+		line-height: 16px;
+	}
+
+	.text-slide-chance {
+		font-size: 18px;
+	}
+
+	.text-guaranteed-reward {
+		font-size: 14px !important;
+		line-height: 14px !important;
+	}
+	.text-guarantee {
+		font-size: 14px;
+		line-height: 14px;
+	}
+
+	.text-gold-button {
+		font-size: 16px;
+		line-height: 24px;
+	}
+
+	.text-gray-subtext {
+		font-size: 14px;
+		line-height: 14px;
+	}
+
+	/* Уменьшение размеров слайдов */
+	.w-\[280px\] {
+		width: 240px !important;
+	}
+
+	/* Кнопка "Забрать и продолжить" в модальном окне выигрыша */
+	.win-modal-button {
+		padding: 10px 15px;
+	}
+	.win-modal-button span {
+		font-size: 14px !important;
+		line-height: 24px !important;
+	}
+}
+
+/* Медиазапрос для экранов менее 330px */
+@media (max-width: 330px) {
+	.text-stat-label {
+		font-size: 12px;
+		line-height: 12px;
+	}
+	.text-gold-title {
+		font-size: 20px;
+		line-height: 20px;
+	}
+
+	.text-secondary-title {
+		font-size: 12px;
+		line-height: 12px;
+	}
+
+	.text-white-title {
+		font-size: 18px;
+		line-height: 18px;
+	}
+
+	.text-win-title {
+		font-size: 18px;
+		line-height: 18px;
+	}
+
+	.text-big-gold {
+		font-size: 36px;
+		line-height: 36px;
+	}
+
+	.text-stat-value {
+		font-size: 16px;
+		line-height: 16px;
+	}
+
+	h3.text-what-you-get {
+		font-size: 14px !important;
+		line-height: 14px !important;
+	}
+	.text-guarantee {
+		font-size: 12px;
+		line-height: 12px;
+	}
+
+	.text-slide-title {
+		font-size: 20px;
+		line-height: 20px;
+	}
+
+	.text-slide-main {
+		font-size: 20px;
+		line-height: 20px;
+	}
+	.text-slide-main.mb-6 {
+		margin-bottom: 10px;
+	}
+
+	.text-slide-price {
+		font-size: 28px;
+	}
+
+	.btn-gold-slide {
+		font-size: 20px;
+		line-height: 20px;
+		padding: 10px;
+	}
+
+	.text-slide-bonus {
+		font-size: 12px;
+		line-height: 12px;
+	}
+
+	.text-slide-chance {
+		font-size: 14px;
+	}
+
+	.text-guaranteed-reward {
+		font-size: 14px !important;
+		line-height: 14px !important;
+	}
+
+	.text-gold-button {
+		font-size: 14px;
+		line-height: 20px;
+	}
+
+	.text-gray-subtext {
+		font-size: 12px;
+		line-height: 12px;
+	}
+
+	/* Уменьшение отступов */
+	.py-5 {
+		padding-top: 0.75rem !important;
+		padding-bottom: 0.75rem !important;
+	}
+
+	.px-5 {
+		padding-left: 0.75rem !important;
+		padding-right: 0.75rem !important;
+	}
+
+	.btn-nav {
+		width: 28px;
+		height: 28px;
+		padding: 6px;
+	}
+
+	.w-24.h-24 {
+		width: 48px !important;
+		height: 48px !important;
+	}
+
+	.w-\[280px\] {
+		width: 200px !important;
+	}
+
+	/* Уменьшение общих отступов контейнера */
+	.p-4 {
+		padding: 0.75rem;
+	}
+
+	.gap-2\.5 {
+		gap: 0.5rem;
+	}
+
+	.rounded-4xl {
+		border-radius: 1.25rem;
+	}
+
+	button.w-full.mt-10 span {
+		font-size: 28px !important;
+		line-height: 28px !important;
+	}
+	/* Анимация для блока последних выигрышей */
+	.transition-transform-slow {
+		transition: transform 0.5s ease-in-out;
+	}
 }

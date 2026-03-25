@@ -43,9 +43,9 @@ export const SEGMENT_BORDER_GRADIENT = 'from-yellow-400 via-yellow-600 to-yellow
 
 // Настройки рулетки
 export const ROULETTE_CONFIG = {
-	SPIN_DURATION: 5000, // время вращения в мс
+	SPIN_DURATION: 10000, // время вращения в мс
 	MIN_SPINS: 5, // минимум полных оборотов
-	DECELERATION: 0.98 // коэффициент замедления
+	DECELERATION: 2.5 // коэффициент замедления
 } as const
 
 // Функция для получения сегмента с учётом вероятностей (подкрутка)

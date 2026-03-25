@@ -51,6 +51,7 @@ export function WinModal({ winAmount, onClose, isOpen }: WinModalProps) {
 				<Button
 					onClick={onClose}
 					variant="gold"
+					className="win-modal-button"
 				>
 					Забрать и продолжить
 				</Button>
