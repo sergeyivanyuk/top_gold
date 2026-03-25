@@ -1,8 +1,10 @@
 {
+	"_commentt": "блок с количеством игроков сегодня и количеством выплаченной голды",
 	"stats": {
 		"playersToday": "1482",
 		"goldIssued": "13 560 950"
 	},
+	"_comments": "Блок с игроками username - ник, gold - количество голды",
 	"recentWins": [
 		{
 			"username": "PlayerX",
