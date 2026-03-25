@@ -1,7 +1,15 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  /* config options here */
+	images: {
+		unoptimized: true, // Отключаем оптимизацию для статических файлов
+		remotePatterns: [
+			{
+				protocol: 'https',
+				hostname: '**'
+			}
+		]
+	}
 }
 
 export default nextConfig
