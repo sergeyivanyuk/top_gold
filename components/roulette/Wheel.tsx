@@ -73,12 +73,12 @@ export function Wheel({ rotation, isSpinning, segmentAngle }: WheelProps) {
 						className="absolute inset-0"
 						style={{
 							background: `conic-gradient(${ROULETTE_SEGMENTS.map((s, i) => {
-								// Основной цвет для conic-gradient - усиленные цвета
+								// Основной цвет для conic-gradient - средние цвета из новых градиентов
 								const baseColors: Record<string, string> = {
-									gold: '#FFD700', // ярче золотой
-									black: '#2A2118', // темнее, но контрастнее
-									blue: '#0A5DA6', // ярче синий
-									red: '#FF4500' // ярче красный
+									gold: '#A25A1E', // средний из золотого градиента
+									black: '#5E411D', // средний из черного градиента
+									blue: '#1E3469', // средний из синего градиента
+									red: '#D34415' // средний из красного градиента
 								}
 								return `${baseColors[s.color] || '#000'} ${i * segmentAngle}deg ${(i + 1) * segmentAngle}deg`
 							}).join(', ')})`
@@ -163,18 +163,26 @@ export function Wheel({ rotation, isSpinning, segmentAngle }: WheelProps) {
 								transform: `rotate(${index * segmentAngle + segmentAngle / 2}deg)`
 							}}
 						>
-							<div className="absolute w-8 h-8 bottom-13">
+							<div className="absolute w-5 h-5 bottom-17">
 								<Image
 									src="/gold-one.png"
-									alt=""
+									alt="голда"
 									fill
-									sizes="32px"
+									sizes="20px"
 									className="object-contain drop-shadow-lg"
 									style={{ filter: 'brightness(1.2)' }}
 								/>
 							</div>
+							{/* Бордер сегментов */}
+							<Image
+								src="/segment-border.png"
+								alt="бордер сегментов"
+								width={115}
+								height={25}
+								className="absolute top-0"
+							/>
 							{/* Текст с объемной тенью */}
-							<div className="relative inline-block">
+							<div className="relative inline-block top-2.5">
 								{/* Тень */}
 								<span
 									style={{
@@ -185,11 +193,11 @@ export function Wheel({ rotation, isSpinning, segmentAngle }: WheelProps) {
 										color: 'transparent',
 										fontFamily: 'Roboto Condensed, sans-serif',
 										textTransform: 'uppercase',
-										letterSpacing: '0.28px',
+										letterSpacing: '0.22',
 										whiteSpace: 'nowrap',
 										wordWrap: 'break-word'
 									}}
-									className="uppercase font-extrabold text-[28px] absolute top-0 left-0 translate-x-[2px] translate-y-[3px]"
+									className="uppercase font-extrabold text-[22px] absolute top-0 left-0 translate-x-[2px] translate-y-[3px]"
 								>
 									{segment.label}
 								</span>
@@ -203,11 +211,11 @@ export function Wheel({ rotation, isSpinning, segmentAngle }: WheelProps) {
 										color: 'transparent',
 										fontFamily: 'Roboto Condensed, sans-serif',
 										textTransform: 'uppercase',
-										letterSpacing: '0.28px',
+										letterSpacing: '0.22px',
 										whiteSpace: 'nowrap',
 										wordWrap: 'break-word'
 									}}
-									className="uppercase font-extrabold text-[28px] relative"
+									className="uppercase font-extrabold text-[22px] relative"
 								>
 									{segment.label}
 								</span>

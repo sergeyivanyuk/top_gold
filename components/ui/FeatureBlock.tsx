@@ -16,7 +16,8 @@ export function FeatureBlock({ iconSrc, iconAlt, title, className = '' }: Featur
 				<Image
 					src={iconSrc}
 					alt={iconAlt}
-					fill
+					width={48}
+					height={48}
 					className="object-contain"
 				/>
 			</div>

@@ -39,13 +39,13 @@ export function ExtraSpinModal({ onClose, isOpen }: ExtraSpinModalProps) {
 				className="relative p-5 text-center max-w-sm w-full flex flex-col items-center gap-5 rounded-card bg-radial-gold border-gold-light outline-offset-[-2px]"
 			>
 				{/* Иконка gift.png */}
-				<div className="relative w-[100px] h-[100px]">
+				<div className="relative w-25 h-25">
 					<Image
 						src="/gift.png"
 						alt=""
 						role="presentation"
-						fill
-						sizes="100px"
+						width={100}
+						height={100}
 						className="object-contain"
 					/>
 				</div>

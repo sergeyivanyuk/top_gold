@@ -1,11 +1,11 @@
 import type { RouletteSegment } from '@/types/roulette'
 
-// Цвета сегментов с градиентами
+// Цвета сегментов с градиентами (точные значения от пользователя)
 const COLORS = {
-	gold: 'linear-gradient(180deg, #FFB81F 9%, #A25A1E 38%, #935C14 55%, #5D3E15 90%)',
-	black: 'linear-gradient(180deg, #493C2C 9%, #5E411D 33%, #401F0B 55%, #140501 90%)',
-	blue: 'linear-gradient(180deg, #124472 9%, #1E3469 33%, #2B1C61 55%, #1D003E 90%)',
-	red: 'linear-gradient(180deg, #C35B15 9%, #D34415 33%, #C42A03 55%, #830000 90%)'
+	gold: 'linear-gradient(0deg,  #FFB81F 9%, #A25A1E 38%, #935C14 55%, #5D3E15 90%)',
+	black: 'linear-gradient(0deg, #493C2C 9%, #5E411D 33%, #401F0B 55%, #140501 90%)',
+	blue: 'linear-gradient(0deg, #124472 9%, #1E3469 33%, #2B1C61 55%, #1D003E 90%)',
+	red: 'linear-gradient(0deg, #C35B15 9%, #D34415 33%, #C42A03 55%, #830000 90%)'
 }
 
 // Border для всех сегментов

@@ -352,7 +352,7 @@
 	.radio-custom {
 		appearance: none;
 		border: 2px solid rgba(255, 233.54, 111.93, 0.9);
-		padding: 1px;
+		padding: 3px;
 		background-color: transparent;
 		background-clip: content-box;
 		background-origin: content-box;
@@ -535,7 +535,7 @@ body {
 input,
 textarea,
 select {
-	font-size: 16px;
+	font-size: 12px;
 }
 
 /* Анимации для рулетки */
@@ -708,8 +708,6 @@ select {
 
 	/* Уменьшение размеров кнопок навигации */
 	.btn-nav {
-		width: 32px;
-		height: 32px;
 		padding: 8px;
 	}
 
@@ -760,10 +758,22 @@ select {
 		font-size: 14px !important;
 		line-height: 24px !important;
 	}
+	.slider-items {
+		height: 51vh;
+	}
+	.official {
+		margin-top: 30px;
+	}
 }
 
 /* Медиазапрос для экранов менее 330px */
 @media (max-width: 330px) {
+	.official {
+		margin-top: 20px;
+	}
+	.slider-items {
+		height: 43vh;
+	}
 	.text-stat-label {
 		font-size: 12px;
 		line-height: 12px;
@@ -866,8 +876,6 @@ select {
 	}
 
 	.btn-nav {
-		width: 28px;
-		height: 28px;
 		padding: 6px;
 	}
 
@@ -894,11 +902,14 @@ select {
 	}
 
 	button.w-full.mt-10 span {
-		font-size: 28px !important;
-		line-height: 28px !important;
+		font-size: 24px !important;
+		line-height: 24px !important;
 	}
 	/* Анимация для блока последних выигрышей */
 	.transition-transform-slow {
 		transition: transform 0.5s ease-in-out;
+	}
+	.slider {
+		height: 420px;
 	}
 }

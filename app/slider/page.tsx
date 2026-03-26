@@ -125,10 +125,11 @@ export default function SliderPage() {
 		const touchEndX = e.changedTouches[0].clientX
 		const distance = touchEndX - startX
 		const swipeThreshold = 50
+		// Свайп вправо (положительное расстояние) -> предыдущий слайд
 		if (distance > swipeThreshold) {
-			nextSlide()
-		} else if (distance < -swipeThreshold) {
 			prevSlide()
+		} else if (distance < -swipeThreshold) {
+			nextSlide()
 		}
 		setDragOffset(0)
 		setTouchStartX(null)
@@ -230,14 +231,14 @@ export default function SliderPage() {
 
 			{/* Слайдер */}
 			<div
-				className="relative w-full max-w-4xl overflow-visible h-[500px]"
+				className="relative w-full max-w-4xl overflow-visible h-[500px] slider"
 				onTouchStart={handleTouchStart}
 				onTouchMove={handleTouchMove}
 				onTouchEnd={handleTouchEnd}
 				role="region"
 				aria-label="Тарифы на дополнительные вращения"
 			>
-				<div className="flex items-center justify-center h-full relative">
+				<div className="flex items-center h-full justify-center slider-items relative">
 					{slides.map((slide, index) => {
 						const style = getSlideStyle(index)
 						return (
@@ -279,7 +280,7 @@ export default function SliderPage() {
 			</div>
 
 			{/* Блоки "Официальное начисление" и "Работаем с 2023 года" */}
-			<div className="mt-20 grid grid-cols-2 gap-2.5 w-full max-w-4xl">
+			<div className="mt-20 grid grid-cols-2 gap-2.5 w-full max-w-4xl official">
 				<FeatureBlock
 					iconSrc="/official.png"
 					iconAlt="Официальное"
@@ -291,13 +292,6 @@ export default function SliderPage() {
 					title="Работаем с 2023 года"
 				/>
 			</div>
-
-			{/* Блок "Последние выигрыши" с анимацией */}
-			<RecentWins
-				wins={constants.recentWins}
-				currentIndex={currentWinIndex}
-				isResetting={isResetting}
-			/>
 		</main>
 	)
 }

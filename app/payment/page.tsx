@@ -1,7 +1,9 @@
 'use client'
 import { Button } from '@/components/ui/Button'
+import { PaymentMethod } from '@/types/payment'
 import { ChevronLeft } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
 
@@ -10,7 +12,11 @@ function PaymentContent() {
 	const [showSuccessModal, setShowSuccessModal] = useState(false)
 	const [showConfirmModal, setShowConfirmModal] = useState(false)
 	const [showBonusModal, setShowBonusModal] = useState(false)
+	const [showPromoModal, setShowPromoModal] = useState(false)
 	const [nickname, setNickname] = useState('')
+	const [promoCode, setPromoCode] = useState('')
+	const [isLoading, setIsLoading] = useState(false)
+	const [paymentError, setPaymentError] = useState<string | null>(null)
 	const searchParams = useSearchParams()
 	const router = useRouter()
 	const tariff = searchParams.get('tariff') || 'Стандарт'
@@ -63,6 +69,44 @@ function PaymentContent() {
 		router.push('/')
 	}
 
+	const handlePromoClick = () => {
+		setShowPromoModal(true)
+	}
+
+	const handlePayment = async () => {
+		setIsLoading(true)
+		setPaymentError(null)
+		try {
+			const paymentMethod = selectedPayment as PaymentMethod
+			const response = await fetch('/api/payment/init', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					tariff,
+					price: Number(price),
+					paymentMethod,
+					nickname,
+					promoCode: promoCode || undefined
+				})
+			})
+			const data = await response.json()
+			if (!response.ok) {
+				throw new Error(data.error || 'Ошибка при инициализации платежа')
+			}
+			// Всегда ожидаем ссылку на оплату
+			if (data.paymentUrl) {
+				window.location.href = data.paymentUrl
+			} else {
+				throw new Error('Не получена ссылка для оплаты')
+			}
+		} catch (error: any) {
+			console.error('Payment error:', error)
+			setPaymentError(error.message || 'Неизвестная ошибка')
+		} finally {
+			setIsLoading(false)
+		}
+	}
+
 	return (
 		<main className=" flex flex-col items-center justify-start p-4">
 			{/* Заголовок страницы и кнопка назад */}
@@ -72,6 +116,14 @@ function PaymentContent() {
 					onClick={() => router.back()}
 				>
 					<ChevronLeft className="text-[#fff] font-bold w-8 h-8" />
+				</button>
+				<button className="absolute top-0 right-0 btn-nav">
+					<Image
+						src="/support.png"
+						alt="Поддержка"
+						width={20}
+						height={20}
+					/>
 				</button>
 				<h1 className="text-2xl font-bold mb-1 text-white">Оплата вращений</h1>
 			</div>
@@ -172,6 +224,8 @@ function PaymentContent() {
 			<Button
 				variant="gold"
 				className="w-full mt-10"
+				onClick={handlePayment}
+				disabled={isLoading}
 			>
 				<span
 					style={{
@@ -179,9 +233,10 @@ function PaymentContent() {
 						lineHeight: '44px'
 					}}
 				>
-					Оплатить {price}₽
+					{isLoading ? 'Обработка...' : `Оплатить ${price}₽`}
 				</span>
 			</Button>
+			{paymentError && <div className="mt-4 text-red-400 text-center">Ошибка: {paymentError}</div>}
 
 			<div className="mt-7.5 grid grid-cols-2 gap-2.5 w-full max-w-4xl">
 				{/* Блок 1 */}
@@ -190,7 +245,8 @@ function PaymentContent() {
 						<Image
 							src="/official.png"
 							alt="Официальное"
-							fill
+							width={48}
+							height={48}
 							className="object-contain"
 						/>
 					</div>
@@ -204,7 +260,8 @@ function PaymentContent() {
 						<Image
 							src="/lightning.png"
 							alt="мгновенная активация"
-							fill
+							width={48}
+							height={48}
 							className="object-contain"
 						/>
 					</div>
@@ -212,10 +269,35 @@ function PaymentContent() {
 					<span className="text-center text-secondary-title">Мгновенная активация</span>
 				</div>
 			</div>
-
+			{/* Политика конфиденциальности, Пользовательское соглашение и промокод */}
+			<div className="mt-3 text-white/50 text-[12px] flex flex-col items-center gap-1">
+				<div className="flex items-center gap-0.5">
+					{/* Пользовательское соглашение */}
+					<Link
+						href="#"
+						className="text-white/50 underline text-[10px]"
+					>
+						Пользовательское соглашение
+					</Link>{' '}
+					| {/* Политика конфиденциальности */}
+					<Link
+						href="#"
+						className="text-white/50 underline text-[10px]"
+					>
+						Политика конфиденциальности
+					</Link>
+				</div>
+				{/* Промокод */}
+				<button
+					onClick={handlePromoClick}
+					className="text-white/50 underline text-[10px] bg-transparent border-none p-0 cursor-pointer"
+				>
+					Ввести Промокод
+				</button>
+			</div>
 			{/* Кнопка тестовой оплаты */}
 			<button
-				onClick={() => setShowSuccessModal(true)}
+				onClick={() => (window.location.href = '/payment/success?transaction=test')}
 				className="mt-10 w-full max-w-4xl py-4 rounded-card bg-gradient-to-b from-green-500 to-green-700 text-white text-xl font-bold shadow-lg"
 			>
 				Тестовая оплата (перейти на главную)
@@ -223,7 +305,7 @@ function PaymentContent() {
 
 			{/* Модальное окно успеха (ввод ника) */}
 			{showSuccessModal && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs">
 					<div
 						className="relative w-[90%] max-w-md rounded-2xl p-4 shadow-2xl flex flex-col items-center"
 						style={{
@@ -236,7 +318,7 @@ function PaymentContent() {
 						{/* Иконка */}
 						<div className="relative w-24 h-24 mb-6">
 							<Image
-								src="/sussess.svg"
+								src="/sussess.png"
 								alt="Успех"
 								fill
 								className="object-contain"
@@ -269,7 +351,7 @@ function PaymentContent() {
 
 			{/* Модальное окно подтверждения ника */}
 			{showConfirmModal && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs">
 					<div
 						className="relative w-[90%] max-w-md rounded-2xl p-6 shadow-2xl flex flex-col items-center"
 						style={{
@@ -324,7 +406,7 @@ function PaymentContent() {
 
 			{/* Модальное окно с предложением бонусного вращения */}
 			{showBonusModal && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs">
 					<div
 						className="relative w-[90%] max-w-md rounded-2xl p-6 px-2 shadow-2xl flex flex-col items-center"
 						style={{
@@ -374,6 +456,57 @@ function PaymentContent() {
 								Без бонуса
 							</button>
 						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Модальное окно для ввода промокода */}
+			{showPromoModal && (
+				<div
+					className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs"
+					onClick={() => setShowPromoModal(false)}
+				>
+					<div
+						className="relative w-[90%] max-w-md rounded-2xl p-5 shadow-2xl flex flex-col items-center"
+						style={{
+							background: 'radial-gradient(ellipse 100.00% 100.00% at 49.68% -0.00%, #AA7A2D 0%, #643C1C 25%, #121413 73%)',
+							borderRadius: '20px',
+							outline: '1px rgba(255, 233.54, 111.93, 0.80) solid',
+							outlineOffset: '-1px'
+						}}
+						onClick={e => e.stopPropagation()}
+					>
+						{/* Иконка gift.png */}
+						<div className="relative w-24 h-24 mb-6">
+							<Image
+								src="/gift.png"
+								alt="Промокод"
+								fill
+								className="object-contain"
+							/>
+						</div>
+						{/* Разделительная линия */}
+						<div className="self-stretch h-0 opacity-40 outline-1 outline-offset-[-0.50px] outline-orange-200 my-2" />
+						{/* Заголовок */}
+						<h2 className="text-win-title mb-2 text-center">Введите промокод</h2>
+						{/* Подзаголовок */}
+						<p className="text-gray-subtext text-center mb-6">Пожалуйста, введите промокод, чтобы мы могли зачислить вам выигрыш после вращения</p>
+						{/* Инпут */}
+						<input
+							type="text"
+							value={promoCode}
+							onChange={e => setPromoCode(e.target.value)}
+							placeholder="Введите сюда ваш промокод"
+							className="w-full py-3 px-4 rounded-xl bg-black/30 border border-gold-light text-white text-[12px] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold mb-6"
+						/>
+						{/* Кнопка продолжить */}
+						<button
+							onClick={() => setShowPromoModal(false)}
+							disabled={!promoCode.trim()}
+							className={`px-12 py-3 w-full transition-colors ${promoCode.trim() ? 'btn-gold-slide' : 'btn-gold-slide opacity-50 cursor-not-allowed'}`}
+						>
+							Продолжить
+						</button>
 					</div>
 				</div>
 			)}
