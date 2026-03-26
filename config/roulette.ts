@@ -14,23 +14,23 @@ export const SEGMENT_BORDER = '2px rgba(255, 233.54, 111.93, 0.90) solid'
 // Сегменты рулетки (10 сегментов)
 export const ROULETTE_SEGMENTS: RouletteSegment[] = [
 	// Черный - 3000 (3 штуки)
-	{ id: 'black1', label: '3000', gold: 3000, color: 'black', gradient: COLORS.black, probability: 10 },
+	{ id: 'black1', label: '3000', gold: 3000, color: 'black', gradient: COLORS.black, probability: 9 },
 	// Синий - 1000 (3 штуки)
-	{ id: 'blue1', label: '1000', gold: 1000, color: 'blue', gradient: COLORS.blue, probability: 20 },
+	{ id: 'blue1', label: '1000', gold: 1000, color: 'blue', gradient: COLORS.blue, probability: 19 },
 	// Красный - 5000 (3 штуки)
 	{ id: 'red1', label: '5000', gold: 5000, color: 'red', gradient: COLORS.red, probability: 5 },
 
 	// Черный
-	{ id: 'black2', label: '3000', gold: 3000, color: 'black', gradient: COLORS.black, probability: 10 },
+	{ id: 'black2', label: '3000', gold: 3000, color: 'black', gradient: COLORS.black, probability: 9 },
 	// Синий
-	{ id: 'blue2', label: '1000', gold: 1000, color: 'blue', gradient: COLORS.blue, probability: 20 },
+	{ id: 'blue2', label: '1000', gold: 1000, color: 'blue', gradient: COLORS.blue, probability: 19 },
 	// Красный
 	{ id: 'red2', label: '5000', gold: 5000, color: 'red', gradient: COLORS.red, probability: 5 },
 
 	// Черный
-	{ id: 'black3', label: '3000', gold: 3000, color: 'black', gradient: COLORS.black, probability: 10 },
+	{ id: 'black3', label: '3000', gold: 3000, color: 'black', gradient: COLORS.black, probability: 9 },
 	// Синий
-	{ id: 'blue3', label: '1000', gold: 1000, color: 'blue', gradient: COLORS.blue, probability: 20 },
+	{ id: 'blue3', label: '1000', gold: 1000, color: 'blue', gradient: COLORS.blue, probability: 19 },
 	// Красный
 	{ id: 'red3', label: '5000', gold: 5000, color: 'red', gradient: COLORS.red, probability: 5 },
 

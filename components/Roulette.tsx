@@ -6,7 +6,7 @@ import constants from '@/data/constants.json'
 import { useRouletteStore } from '@/lib/store/roulette'
 import { cn } from '@/lib/utils'
 import { RotateCcw } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { ExtraSpinModal } from './roulette/ExtraSpinModal'
 import { Wheel } from './roulette/Wheel'
 import { WinModal } from './roulette/WinModal'
@@ -16,7 +16,6 @@ interface RouletteProps {
 }
 
 export function Roulette({ onWin }: RouletteProps) {
-	const wheelRef = useRef<HTMLDivElement>(null)
 	const [rotation, setRotation] = useState(0)
 	const [isSpinning, setIsSpinning] = useState(false)
 	const [selectedSegment, setSelectedSegment] = useState<string | null>(null)
@@ -35,9 +34,6 @@ export function Roulette({ onWin }: RouletteProps) {
 
 	const spinWheel = () => {
 		if (isSpinning) return
-
-		// Определяем, является ли это бесплатное вращение (первое и единственное, которое даётся при входе)
-		const isFreeSpin = totalSpins === 0 && remainingSpins === 1
 
 		setIsSpinning(true)
 		setSelectedSegment(null)
@@ -168,25 +164,6 @@ export function Roulette({ onWin }: RouletteProps) {
 				)}
 			</Button>
 			<div className="text-guarantee">Гарантированная награда при каждом вращении</div>
-
-			{/* Панель подкрутки (для тестирования) */}
-			{/* {process.env.NODE_ENV === 'development' && (
-				<div className="w-full p-4 bg-gray-800/50 rounded-lg">
-					<p className="text-xs text-gray-400 mb-2">Подкрутка (dev only):</p>
-					<div className="flex flex-wrap gap-2">
-						{ROULETTE_SEGMENTS.map(segment => (
-							<button
-								key={segment.id}
-								onClick={() => setOverrideSegment(overrideSegment === segment.id ? null : segment.id)}
-								className={cn('px-2 py-1 text-xs rounded', overrideSegment === segment.id ? 'bg-gold text-black' : 'bg-gray-700 text-gray-300')}
-								disabled={isSpinning}
-							>
-								{segment.label}
-							</button>
-						))}
-					</div>
-				</div>
-			)} */}
 
 			{/* Модальное окно выигрыша */}
 			<WinModal

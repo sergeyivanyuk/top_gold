@@ -13,19 +13,40 @@ export function WinModal({ winAmount, onClose, isOpen }: WinModalProps) {
 	const isBigWin = winAmount >= 10000
 	const title = isBigWin ? 'Вы выиграли!' : 'почти повезло!'
 	const amountClass = isBigWin ? 'text-big-gold' : 'text-win-amount-low'
+	const titleId = 'win-modal-title'
+	const descriptionId = 'win-modal-description'
 
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+			{/* Overlay */}
 			<div
 				className="absolute inset-0 bg-black/60 backdrop-blur-xs"
 				onClick={onClose}
+				aria-hidden="true"
 			/>
-			<div className="relative p-5 text-center max-w-sm w-full flex flex-col items-center gap-5 rounded-card bg-radial-gold border-gold-light outline-offset-[-2px]">
+			{/* Modal */}
+			<div
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby={titleId}
+				aria-describedby={descriptionId}
+				className="relative p-5 text-center max-w-sm w-full flex flex-col items-center gap-5 rounded-card bg-radial-gold border-gold-light outline-offset-[-2px]"
+			>
 				{/* Заголовок */}
-				<p className="text-center text-win-title">{title}</p>
+				<h2
+					id={titleId}
+					className="text-center text-win-title"
+				>
+					{title}
+				</h2>
 
 				{/* Подтекст */}
-				<p className="text-center text-gray-subtext">Выигрыш будет зачислен на ваш аккаунт в&nbsp;течении 24ч!</p>
+				<p
+					id={descriptionId}
+					className="text-center text-gray-subtext"
+				>
+					Выигрыш будет зачислен на ваш аккаунт в&nbsp;течении 24ч!
+				</p>
 
 				{/* Разделительная линия */}
 				<div className="w-full h-0 opacity-40 outline-1 outline-offset-[-0.50px] outline-orange-200" />
@@ -35,8 +56,9 @@ export function WinModal({ winAmount, onClose, isOpen }: WinModalProps) {
 					<p className={amountClass}>{winAmount.toLocaleString()}</p>
 					<div className="relative w-[60px] h-[60px]">
 						<Image
-							src="/golds.svg"
-							alt="Gold"
+							src="/golds.png"
+							alt=""
+							role="presentation"
 							fill
 							sizes="60px"
 							className="object-contain"
@@ -52,6 +74,7 @@ export function WinModal({ winAmount, onClose, isOpen }: WinModalProps) {
 					onClick={onClose}
 					variant="gold"
 					className="win-modal-button"
+					aria-label="Забрать выигрыш и продолжить"
 				>
 					Забрать и продолжить
 				</Button>

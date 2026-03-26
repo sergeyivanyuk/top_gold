@@ -1,8 +1,10 @@
 'use client'
 
+import { FeatureBlock } from '@/components/ui/FeatureBlock'
+import { NavButton } from '@/components/ui/NavButton'
+import { RecentWins } from '@/components/ui/RecentWins'
+import { TariffCard } from '@/components/ui/TariffCard'
 import constants from '@/data/constants.json'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
@@ -49,7 +51,7 @@ export default function SliderPage() {
 
 	const slides = [
 		{
-			icon: '/golds.svg',
+			icon: '/golds.png',
 			title: 'Стандарт',
 			mainText: '1 Вращение',
 			bonus: 'ШАНСЫ ЕСТЬ',
@@ -58,7 +60,7 @@ export default function SliderPage() {
 			buttonText: 'Выбрать'
 		},
 		{
-			icon: '/super.svg',
+			icon: '/super.png',
 			title: 'Выгодный',
 			mainText: '3 Вращения',
 			bonus: '+1 Бонусное вращение',
@@ -67,7 +69,7 @@ export default function SliderPage() {
 			buttonText: 'Выбрать'
 		},
 		{
-			icon: '/premium.svg',
+			icon: '/premium.png',
 			title: 'Премиум',
 			mainText: '5 Вращений',
 			bonus: '+2 Бонусных вращения',
@@ -76,7 +78,7 @@ export default function SliderPage() {
 			buttonText: 'выбрать'
 		},
 		{
-			icon: '/lux.svg',
+			icon: '/lux.png',
 			title: 'Люкс',
 			mainText: '8 Вращений',
 			bonus: '+3 Бонусных вращения',
@@ -232,6 +234,8 @@ export default function SliderPage() {
 				onTouchStart={handleTouchStart}
 				onTouchMove={handleTouchMove}
 				onTouchEnd={handleTouchEnd}
+				role="region"
+				aria-label="Тарифы на дополнительные вращения"
 			>
 				<div className="flex items-center justify-center h-full relative">
 					{slides.map((slide, index) => {
@@ -246,49 +250,16 @@ export default function SliderPage() {
 									transform: `translateX(-50%) ${style.transform}`
 								}}
 							>
-								<div
-									className="rounded-2xl p-8 shadow-2xl flex flex-col items-center"
-									style={{
-										background: 'radial-gradient(ellipse 100.00% 100.00% at 49.68% -0.00%, #AA7A2D 0%, #643C1C 25%, #121413 73%)',
-										borderRadius: '20px',
-										outline: '1px rgba(255, 233.54, 111.93, 0.80) solid',
-										outlineOffset: '-1px'
-									}}
-								>
-									{/* Иконка */}
-									<div className="relative w-24 h-24">
-										<Image
-											src={slide.icon}
-											alt=""
-											fill
-											className="object-contain"
-										/>
-									</div>
-									{/* Заголовок (Стандарт/Выгодный/Премиум/Люкс) */}
-									<h2 className="text-slide-title mb-1 text-center">{slide.title}</h2>
-									{/* Разделительная линия */}
-									<div className="w-full h-px bg-white/40 my-2" />
-									{/* Основной текст (1 Вращение / 3 Вращения и т.д.) */}
-									<p className="text-slide-main mb-6">{slide.mainText}</p>
-									{/* Бонус (если есть) */}
-									{slide.bonus && <p className="py-2.5 w-full text-center bg-gradient-bonus text-slide-bonus">{slide.bonus}</p>}
-									{/* Блок с градиентом и текстом шанса */}
-									<div className="w-full pb-3 mb-4 flex items-center justify-center">
-										<span className="text-slide-chance">{slide.chanceText}</span>
-									</div>
-									<div className="text-center">
-										<span className="text-slide-price">{slide.price}</span>
-									</div>
-									{/*кнопка*/}
-									<div className="flex items-center justify-between w-full">
-										<button
-											onClick={() => handleSelectTariff(slide)}
-											className="px-12 py-3 w-full transition-colors btn-gold-slide"
-										>
-											{slide.buttonText}
-										</button>
-									</div>
-								</div>
+								<TariffCard
+									icon={slide.icon}
+									title={slide.title}
+									mainText={slide.mainText}
+									bonus={slide.bonus}
+									chanceText={slide.chanceText}
+									price={slide.price}
+									buttonText={slide.buttonText}
+									onSelect={() => handleSelectTariff(slide)}
+								/>
 							</div>
 						)
 					})}
@@ -296,81 +267,37 @@ export default function SliderPage() {
 
 				{/* Кнопки переключения */}
 				<div className="flex justify-center items-center mt-2.5 gap-2.5">
-					<button
+					<NavButton
+						direction="prev"
 						onClick={prevSlide}
-						className="btn-nav"
-					>
-						<ChevronLeft className="text-[#fff] font-bold w-8 h-8" />
-					</button>
-					<button
+					/>
+					<NavButton
+						direction="next"
 						onClick={nextSlide}
-						className="btn-nav"
-					>
-						<ChevronRight className="text-[#fff] font-bold w-8 h-8" />
-					</button>
+					/>
 				</div>
 			</div>
 
 			{/* Блоки "Официальное начисление" и "Работаем с 2023 года" */}
 			<div className="mt-20 grid grid-cols-2 gap-2.5 w-full max-w-4xl">
-				{/* Блок 1 */}
-				<div className="flex flex-col items-center px-6 py-4 rounded-card bg-radial-gold border-gold-light outline-offset-[-1px]">
-					<div className="relative w-12 h-12">
-						<Image
-							src="/official.svg"
-							alt="Официальное"
-							fill
-							className="object-contain"
-						/>
-					</div>
-					<div className="self-stretch h-0 opacity-40 outline-1 outline-offset-[-0.50px] outline-orange-200 my-2" />
-					<span className="text-center text-secondary-title">Официальное начисление</span>
-				</div>
+				<FeatureBlock
+					iconSrc="/official.png"
+					iconAlt="Официальное"
+					title="Официальное начисление"
+				/>
+				<FeatureBlock
+					iconSrc="/clock.png"
+					iconAlt="Работаем с 2023"
+					title="Работаем с 2023 года"
+				/>
+			</div>
 
-				{/* Блок 2 */}
-				<div className="flex flex-col items-center px-6 py-4 rounded-card bg-radial-gold border-gold-light outline-offset-[-1px]">
-					<div className="relative w-12 h-12">
-						<Image
-							src="/clock.svg"
-							alt="Работаем с 2023"
-							fill
-							className="object-contain"
-						/>
-					</div>
-					<div className="self-stretch h-0 opacity-40 outline-1 outline-offset-[-0.50px] outline-orange-200 my-2" />
-					<span className="text-center text-secondary-title">Работаем с 2023 года</span>
-				</div>
-			</div>
 			{/* Блок "Последние выигрыши" с анимацией */}
-			<div className="flex flex-col items-center px-6 py-4 rounded-card mt-5 w-full bg-radial-gold border-gold-light outline-offset-[-1px]">
-				<span className="text-center text-secondary-title mb-2.5">Последние выигрыши</span>
-				<div className="items w-full flex flex-col gap-3 h-[180px] overflow-hidden relative">
-					<div
-						className={isResetting ? '' : 'transition-transform duration-200'}
-						style={{ transform: `translateY(-${currentWinIndex * 60}px)` }}
-					>
-						{extendedWins.map((win, index) => (
-							<React.Fragment key={index}>
-								<div className="flex items-center justify-between w-full h-[60px]">
-									<span className="text-center text-base font-medium text-white">{win.username}</span>
-									<div className="flex items-center">
-										<span className="text-stat-value">{win.gold}</span>
-										<Image
-											src="/golds.svg"
-											alt="голда"
-											width={20}
-											height={20}
-										/>
-									</div>
-								</div>
-								{index < extendedWins.length - 1 && (
-									<div className="self-stretch h-0 opacity-50 outline-1 outline-offset-[-0.50px] outline-orange-300" />
-								)}
-							</React.Fragment>
-						))}
-					</div>
-				</div>
-			</div>
+			<RecentWins
+				wins={constants.recentWins}
+				currentIndex={currentWinIndex}
+				isResetting={isResetting}
+			/>
 		</main>
 	)
 }

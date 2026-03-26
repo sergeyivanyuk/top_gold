@@ -130,7 +130,7 @@ function PaymentContent() {
 							</label>
 						</div>
 						<Image
-							src="/sbp.svg"
+							src="/sbp.png"
 							alt="SBP"
 							className="object-contain"
 							width={51}
@@ -159,7 +159,7 @@ function PaymentContent() {
 							</label>
 						</div>
 						<Image
-							src="/card.svg"
+							src="/card.png"
 							alt="card"
 							className="object-contain"
 							width={23}
@@ -185,10 +185,10 @@ function PaymentContent() {
 
 			<div className="mt-7.5 grid grid-cols-2 gap-2.5 w-full max-w-4xl">
 				{/* Блок 1 */}
-				<div className="flex flex-col items-center px-6 py-4 rounded-card bg-radial-gold border-gold-light outline-offset-[-1px]">
+				<div className="flex flex-col items-center p-4 rounded-card bg-radial-gold border-gold-light outline-offset-[-1px]">
 					<div className="relative w-12 h-12">
 						<Image
-							src="/official.svg"
+							src="/official.png"
 							alt="Официальное"
 							fill
 							className="object-contain"
@@ -199,10 +199,10 @@ function PaymentContent() {
 				</div>
 
 				{/* Блок 2 */}
-				<div className="flex flex-col items-center justify-end px-6 py-4 rounded-card bg-radial-gold border-gold-light outline-offset-[-1px]">
-					<div className="relative w-10 h-8 mb-2">
+				<div className="flex flex-col items-center justify-end  p-4 rounded-card bg-radial-gold border-gold-light outline-offset-[-1px]">
+					<div className="relative w-12 h-12">
 						<Image
-							src="/lightning.svg"
+							src="/lightning.png"
 							alt="мгновенная активация"
 							fill
 							className="object-contain"

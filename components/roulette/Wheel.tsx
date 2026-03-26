@@ -165,7 +165,7 @@ export function Wheel({ rotation, isSpinning, segmentAngle }: WheelProps) {
 						>
 							<div className="absolute w-8 h-8 bottom-13">
 								<Image
-									src="/gold-one.svg"
+									src="/gold-one.png"
 									alt=""
 									fill
 									sizes="32px"

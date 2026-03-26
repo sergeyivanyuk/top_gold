@@ -35,13 +35,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 				{/* Хедер */}
 				<header className="p-4 safe-area-top">
 					<div className="flex items-center justify-center">
-						<div className="relative w-[203px] h-[40px]">
+						<div className="relative w-screen h-[40px]">
 							<Image
-								src="/logo.svg"
+								src="/logo.png"
 								alt="Logo"
 								fill
-								sizes="203px"
-								className="object-contain w-full h-full"
+								className="object-contain w-screen h-full"
 							/>
 						</div>
 					</div>

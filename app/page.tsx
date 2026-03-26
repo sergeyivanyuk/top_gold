@@ -1,9 +1,9 @@
 'use client'
 
 import { Roulette } from '@/components/Roulette'
+import { GradientNumber } from '@/components/ui/GradientNumber'
 import { StatCard } from '@/components/ui/StatCard'
 import constants from '@/data/constants.json'
-import { ROULETTE_NUMBER_GRADIENT, ROULETTE_SHADOW_GRADIENT } from '@/lib/constants'
 import { useRouletteStore } from '@/lib/store/roulette'
 
 export default function Home() {
@@ -16,43 +16,10 @@ export default function Home() {
 				<div className="px-4 py-2 flex justify-center">
 					<div className="flex items-center gap-5 px-5 py-1 bg-radial-gold rounded-card border-gold-light outline-offset-[-1px] mb-7.5">
 						<span className="text-secondary-title">Вращений осталось:</span>
-						<p className="text-center justify-center flex flex-col">
-							<span className="relative inline-block h-[40px]">
-								{/* Тень */}
-								<span
-									className="absolute top-0 left-0 translate-x-[2px] translate-y-[3px] font-extrabold text-[35px] uppercase"
-									style={{
-										backgroundImage: ROULETTE_SHADOW_GRADIENT,
-										WebkitBackgroundClip: 'text',
-										WebkitTextFillColor: 'transparent',
-										backgroundClip: 'text',
-										color: 'transparent',
-										fontFamily: 'var(--font-roboto-condensed), Roboto Condensed, sans-serif',
-										lineHeight: '35px',
-										letterSpacing: '0.35px'
-									}}
-								>
-									{remainingSpins}
-								</span>
-								{/* Основной текст */}
-								<span
-									className="relative font-extrabold text-[35px] uppercase underline"
-									style={{
-										backgroundImage: ROULETTE_NUMBER_GRADIENT,
-										WebkitBackgroundClip: 'text',
-										WebkitTextFillColor: 'transparent',
-										backgroundClip: 'text',
-										color: 'transparent',
-										fontFamily: 'var(--font-roboto-condensed), Roboto Condensed, sans-serif',
-										lineHeight: '35px',
-										letterSpacing: '0.35px',
-										textDecorationColor: 'inherit'
-									}}
-								>
-									{remainingSpins}
-								</span>
-							</span>
-						</p>
+						<GradientNumber
+							value={remainingSpins}
+							size="md"
+						/>
 					</div>
 				</div>
 			)}
@@ -64,13 +31,13 @@ export default function Home() {
 			{/* Дополнительная статистика */}
 			<div className="py-2 px-1 grid grid-cols-2 gap-2.5 mt-10">
 				<StatCard
-					iconSrc="/users.svg"
+					iconSrc="/users.png"
 					iconAlt="Игроки"
 					label="Игроков сегодня"
 					value={constants.stats.playersToday}
 				/>
 				<StatCard
-					iconSrc="/golds.svg"
+					iconSrc="/golds.png"
 					iconAlt="Голда"
 					label="Голды выдано"
 					value={constants.stats.goldIssued}

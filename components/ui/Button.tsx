@@ -55,53 +55,56 @@ const GOLD_OUTLINE_BUTTON_STYLES = {
 	paddingBottom: '10px'
 }
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ className, variant = 'primary', size = 'md', children, ...props }, ref) => {
-	return (
-		<button
-			ref={ref}
-			className={cn(
-				'inline-flex items-center justify-center font-bold rounded-3xl uppercase transition-colors tracking-wide',
-				'disabled:opacity-50 disabled:cursor-not-allowed',
-				{
-					// Gold - основная кнопка рулетки
-					'': variant === 'gold',
-					'bg-gray-700 text-white hover:bg-gray-600': variant === 'secondary',
-					'border-2 border-[#ffcf7c] text-[#ffcf7c] hover:bg-[#ffcf7c]/10': variant === 'outline',
-					'text-gray-400 hover:text-white hover:bg-gray-800': variant === 'ghost'
-				},
-				{
-					'px-3 py-1.5 text-sm': size === 'sm',
-					'px-4 py-1.5': size === 'md',
-					'px-6 py-1.5 text-lg': size === 'lg',
-					'px-10 py-2.5 text-xl': size === 'xl'
-				},
-				className
-			)}
-			style={
-				variant === 'gold'
-					? {
-							...GOLD_BUTTON_STYLES,
-							paddingLeft: '40px',
-							paddingRight: '40px',
-							paddingTop: '10px',
-							paddingBottom: '10px'
-						}
-					: variant === 'gold-outline'
-						? GOLD_OUTLINE_BUTTON_STYLES
-						: undefined
-			}
-			{...props}
-		>
-			{variant === 'gold' ? (
-				<span style={GOLD_TEXT_STYLES}>{children}</span>
-			) : variant === 'gold-outline' ? (
-				<span style={GOLD_OUTLINE_TEXT_STYLES}>{children}</span>
-			) : (
-				children
-			)}
-		</button>
-	)
-})
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+	({ className, variant = 'primary', size = 'md', children, type = 'button', ...props }, ref) => {
+		return (
+			<button
+				ref={ref}
+				type={type}
+				className={cn(
+					'inline-flex items-center justify-center font-bold rounded-3xl uppercase transition-colors tracking-wide',
+					'disabled:opacity-50 disabled:cursor-not-allowed',
+					{
+						// Gold - основная кнопка рулетки
+						'': variant === 'gold',
+						'bg-gray-700 text-white hover:bg-gray-600': variant === 'secondary',
+						'border-2 border-[#ffcf7c] text-[#ffcf7c] hover:bg-[#ffcf7c]/10': variant === 'outline',
+						'text-gray-400 hover:text-white hover:bg-gray-800': variant === 'ghost'
+					},
+					{
+						'px-3 py-1.5 text-sm': size === 'sm',
+						'px-4 py-1.5': size === 'md',
+						'px-6 py-1.5 text-lg': size === 'lg',
+						'px-10 py-2.5 text-xl': size === 'xl'
+					},
+					className
+				)}
+				style={
+					variant === 'gold'
+						? {
+								...GOLD_BUTTON_STYLES,
+								paddingLeft: '40px',
+								paddingRight: '40px',
+								paddingTop: '10px',
+								paddingBottom: '10px'
+							}
+						: variant === 'gold-outline'
+							? GOLD_OUTLINE_BUTTON_STYLES
+							: undefined
+				}
+				{...props}
+			>
+				{variant === 'gold' ? (
+					<span style={GOLD_TEXT_STYLES}>{children}</span>
+				) : variant === 'gold-outline' ? (
+					<span style={GOLD_OUTLINE_TEXT_STYLES}>{children}</span>
+				) : (
+					children
+				)}
+			</button>
+		)
+	}
+)
 
 Button.displayName = 'Button'
 

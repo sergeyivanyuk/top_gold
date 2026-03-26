@@ -1,13 +1,15 @@
+'use client'
+
 import Image from 'next/image'
 
-interface FeatureCardProps {
+interface FeatureBlockProps {
 	iconSrc: string
 	iconAlt: string
 	title: string
 	className?: string
 }
 
-export function FeatureCard({ iconSrc, iconAlt, title, className = '' }: FeatureCardProps) {
+export function FeatureBlock({ iconSrc, iconAlt, title, className = '' }: FeatureBlockProps) {
 	return (
 		<div className={`flex flex-col items-center px-6 py-4 rounded-card bg-radial-gold border-gold-light outline-offset-[-1px] ${className}`}>
 			<div className="relative w-12 h-12">
@@ -19,7 +21,7 @@ export function FeatureCard({ iconSrc, iconAlt, title, className = '' }: Feature
 				/>
 			</div>
 			<div className="self-stretch h-0 opacity-40 outline-1 outline-offset-[-0.50px] outline-orange-200 my-2" />
-			<span className="text-secondary-title text-center">{title}</span>
+			<span className="text-center text-secondary-title">{title}</span>
 		</div>
 	)
 }

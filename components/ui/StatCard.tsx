@@ -11,8 +11,8 @@ interface StatCardProps {
 
 export function StatCard({ iconSrc, iconAlt, label, value, labelClassName = 'text-stat-label', valueClassName = 'text-stat-value' }: StatCardProps) {
 	return (
-		<div className="flex flex-col items-center px-6 py-4 rounded-card bg-radial-gold border-gold-light outline-offset-[-1px]">
-			<div className="relative w-12 h-12 mb-2">
+		<div className="flex flex-col items-center  p-[10px] rounded-card bg-radial-gold border-gold-light outline-offset-[-1px]">
+			<div className="relative w-12 h-12">
 				<Image
 					src={iconSrc}
 					alt={iconAlt}
