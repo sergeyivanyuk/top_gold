@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
 	try {
 		// В реальном провайдере здесь должна быть проверка подписи/авторизации
 		const body = await request.json()
-		const paymentService = getPaymentService()
+		const paymentService = await getPaymentService()
 		const result = await paymentService.handleWebhook(body)
 
 		// Обновляем статус платежа в БД, начисляем вращения и т.д.

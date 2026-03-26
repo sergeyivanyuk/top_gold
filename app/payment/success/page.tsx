@@ -2,9 +2,9 @@
 
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
 	const router = useRouter()
 	const searchParams = useSearchParams()
 	const transactionId = searchParams.get('transaction')
@@ -125,5 +125,13 @@ export default function PaymentSuccessPage() {
 				</div>
 			)}
 		</div>
+	)
+}
+
+export default function PaymentSuccessPage() {
+	return (
+		<Suspense fallback={<div className="min-h-screen flex items-center justify-center">Загрузка...</div>}>
+			<PaymentSuccessContent />
+		</Suspense>
 	)
 }

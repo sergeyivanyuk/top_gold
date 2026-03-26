@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 			promoCode
 		}
 
-		const paymentService = getPaymentService()
+		const paymentService = await getPaymentService()
 		const paymentResponse = await paymentService.initPayment(paymentRequest)
 
 		return NextResponse.json(paymentResponse, { status: 200 })

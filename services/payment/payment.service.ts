@@ -1,5 +1,4 @@
 import { PaymentRequest, PaymentResponse, PaymentStatus } from '@/types/payment'
-import { PlategaPaymentService } from './providers/platega.service'
 
 /**
  * Абстрактный класс платежного сервиса.
@@ -52,11 +51,12 @@ export class MockPaymentService extends PaymentService {
  * Фабрика для получения экземпляра платежного сервиса.
  * В зависимости от конфигурации окружения возвращает mock или реальный сервис.
  */
-export function getPaymentService(): PaymentService {
+export async function getPaymentService(): Promise<PaymentService> {
 	const useMock = process.env.NEXT_PUBLIC_USE_MOCK_PAYMENT === 'true' || process.env.NODE_ENV === 'development'
 	if (useMock && !process.env.PLATEGA_MERCHANT_ID) {
 		return new MockPaymentService()
 	}
 	// Используем Platega как основной провайдер
+	const { PlategaPaymentService } = await import('./providers/platega.service')
 	return new PlategaPaymentService()
 }
