@@ -5,8 +5,8 @@ import { getRandomSegment, ROULETTE_CONFIG, ROULETTE_SEGMENTS } from '@/config/r
 import constants from '@/data/constants.json'
 import { useRouletteStore } from '@/lib/store/roulette'
 import { cn } from '@/lib/utils'
-import { RotateCcw } from 'lucide-react'
-import { useState } from 'react'
+import { RotateCw } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { ExtraSpinModal } from './roulette/ExtraSpinModal'
 import { Wheel } from './roulette/Wheel'
 import { WinModal } from './roulette/WinModal'
@@ -23,7 +23,31 @@ export function Roulette({ onWin }: RouletteProps) {
 	const [winAmount, setWinAmount] = useState(0)
 	const [showExtraSpinModal, setShowExtraSpinModal] = useState(false)
 
+	const audioRef = useRef<HTMLAudioElement | null>(null)
+	const buttonAudioRef = useRef<HTMLAudioElement | null>(null)
+
 	const { addWinner, incrementSpins, addGold, remainingSpins, totalSpins, decrementRemainingSpins } = useRouletteStore()
+
+	// Инициализация аудиоэлементов
+	useEffect(() => {
+		audioRef.current = new Audio('/wheel.mp3')
+		audioRef.current.volume = 0.4
+		audioRef.current.loop = true
+
+		buttonAudioRef.current = new Audio('/button.mp3')
+		buttonAudioRef.current.volume = 0.4
+
+		return () => {
+			if (audioRef.current) {
+				audioRef.current.pause()
+				audioRef.current = null
+			}
+			if (buttonAudioRef.current) {
+				buttonAudioRef.current.pause()
+				buttonAudioRef.current = null
+			}
+		}
+	}, [])
 
 	// Подкрутка (для админа) - значение берётся из конфигурационного файла data/constants.json
 	// Возможные значения: 'gold', 'black1', 'black2', 'black3', 'blue1', 'blue2', 'blue3', 'red1', 'red2', 'red3'
@@ -38,8 +62,26 @@ export function Roulette({ onWin }: RouletteProps) {
 		setIsSpinning(true)
 		setSelectedSegment(null)
 
+		// Воспроизведение звука кнопки
+		if (buttonAudioRef.current) {
+			buttonAudioRef.current.currentTime = 0
+			buttonAudioRef.current.play().catch(e => console.error('Ошибка воспроизведения звука кнопки:', e))
+		}
+
+		// Воспроизведение звука вращения
+		if (audioRef.current) {
+			audioRef.current.currentTime = 0
+			audioRef.current.play().catch(e => console.error('Ошибка воспроизведения звука:', e))
+		}
+
 		// Определяем выигрышный сегмент
-		const winningSegment = getRandomSegment(overrideSegment || undefined)
+		// Первая крутка всегда даёт золотой сегмент (10000)
+		let winningSegment
+		if (totalSpins === 0) {
+			winningSegment = ROULETTE_SEGMENTS.find(s => s.id === 'gold') || getRandomSegment(overrideSegment || undefined)
+		} else {
+			winningSegment = getRandomSegment(overrideSegment || undefined)
+		}
 
 		// Вычисляем угол для этого сегмента
 		const segmentIndex = ROULETTE_SEGMENTS.findIndex(s => s.id === winningSegment.id)
@@ -73,10 +115,25 @@ export function Roulette({ onWin }: RouletteProps) {
 
 		const totalRotation = rotation + spins * 360 + diff + randomOffset
 
+		// Устанавливаем выигрышную сумму и сегмент сразу (для раннего показа)
+		setWinAmount(winningSegment.gold)
+		setSelectedSegment(winningSegment.id)
+
 		// Анимация
 		const duration = ROULETTE_CONFIG.SPIN_DURATION
 		const startTime = Date.now()
 		const startRotation = rotation
+
+		// Флаг, чтобы не показывать модальное окно дважды
+		let winModalShown = false
+
+		// Показываем выигрыш через 3 секунды (до остановки рулетки)
+		const winTimer = setTimeout(() => {
+			if (!winModalShown) {
+				winModalShown = true
+				setShowWinModal(true)
+			}
+		}, 11500)
 
 		const animate = () => {
 			const elapsed = Date.now() - startTime
@@ -103,6 +160,12 @@ export function Roulette({ onWin }: RouletteProps) {
 				setSelectedSegment(actualWinningSegment.id)
 				setWinAmount(actualWinningSegment.gold)
 
+				// Остановка звука вращения
+				if (audioRef.current) {
+					audioRef.current.pause()
+					audioRef.current.currentTime = 0
+				}
+
 				// Обновляем статистику
 				incrementSpins()
 				addGold(actualWinningSegment.gold)
@@ -124,8 +187,14 @@ export function Roulette({ onWin }: RouletteProps) {
 
 				// Подкрутка остаётся (не сбрасываем)
 
-				// Всегда показываем окно выигрыша
-				setShowWinModal(true)
+				// Очищаем таймер
+				clearTimeout(winTimer)
+
+				// Показываем окно выигрыша, если ещё не показано
+				if (!winModalShown) {
+					winModalShown = true
+					setShowWinModal(true)
+				}
 			}
 		}
 
@@ -152,11 +221,11 @@ export function Roulette({ onWin }: RouletteProps) {
 				disabled={isSpinning}
 				variant="gold"
 				size="xl"
-				className={cn('w-full', isSpinning && 'opacity-50 cursor-not-allowed', !isSpinning && 'animate-pulse-gold')}
+				className={cn('w-full text-[25px]', isSpinning && 'opacity-50 cursor-not-allowed', !isSpinning && 'animate-pulse-gold')}
 			>
 				{isSpinning ? (
 					<span className="flex items-center gap-2">
-						<RotateCcw className="w-5 h-5 animate-spin" />
+						<RotateCw className="w-5 h-5 animate-spin" />
 						Вращаю...
 					</span>
 				) : (

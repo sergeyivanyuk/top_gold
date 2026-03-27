@@ -19,7 +19,6 @@ const GOLD_BUTTON_STYLES = {
 
 const GOLD_TEXT_STYLES = {
 	color: '#472004',
-	fontSize: '19px',
 	fontFamily: 'var(--font-roboto-condensed), Roboto Condensed, sans-serif',
 	fontWeight: '900',
 	textTransform: 'uppercase' as const,

@@ -41,6 +41,49 @@
 	],
 	"roulette": {
 		"_comment": "Настройка подкрутки рулетки. overrideSegmentId: ID сегмента, на который будет подкручиваться рулетка. Возможные значения: 'gold', 'black1', 'black2', 'black3', 'blue1', 'blue2', 'blue3', 'red1', 'red2', 'red3'. Установите null для отключения подкрутки.",
-		"overrideSegmentId": "gold"
+		"overrideSegmentId": null
+	},
+	"_comment": "Блок с количеством голды на сегментах и вероятностями выпадения",
+	"segments": {
+		"gold": {
+			"gold": 10000,
+			"probability": 0
+		},
+		"black1": {
+			"gold": 500,
+			"probability": 2
+		},
+		"black2": {
+			"gold": 500,
+			"probability": 2
+		},
+		"black3": {
+			"gold": 500,
+			"probability": 1
+		},
+		"blue1": {
+			"gold": 100,
+			"probability": 32
+		},
+		"blue2": {
+			"gold": 100,
+			"probability": 32
+		},
+		"blue3": {
+			"gold": 100,
+			"probability": 31
+		},
+		"red1": {
+			"gold": 5000,
+			"probability": 0
+		},
+		"red2": {
+			"gold": 5000,
+			"probability": 0
+		},
+		"red3": {
+			"gold": 5000,
+			"probability": 0
+		}
 	}
 }

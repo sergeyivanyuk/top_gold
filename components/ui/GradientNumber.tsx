@@ -36,7 +36,7 @@ export function GradientNumber({ value, size = 'md', className = '', shadowClass
 		<div className={`relative inline-block h-[${lineHeight[size]}] ${className}`}>
 			{/* Тень */}
 			<span
-				className={`absolute top-0 left-0 translate-x-[2px] translate-y-[3px] ${sizeStyles[size]} ${shadowClassName}`}
+				className={`absolute top-0 left-0 translate-x-[1px] translate-y-[1px] ${sizeStyles[size]} ${shadowClassName}`}
 				style={{
 					...baseStyle,
 					backgroundImage: ROULETTE_SHADOW_GRADIENT,

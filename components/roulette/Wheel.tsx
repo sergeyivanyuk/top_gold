@@ -8,7 +8,6 @@ interface WheelProps {
 	isSpinning: boolean
 	segmentAngle: number
 }
-
 export function Wheel({ rotation, isSpinning, segmentAngle }: WheelProps) {
 	return (
 		<div className="relative">
@@ -68,20 +67,87 @@ export function Wheel({ rotation, isSpinning, segmentAngle }: WheelProps) {
 				style={{ transform: `rotate(${rotation}deg)`, border: '1px solid #FFEDB3' }}
 			>
 				<div className={cn('absolute inset-0', !isSpinning && 'animate-sway')}>
-					{/* Базовый фон - conic-gradient */}
+					{/* Базовый фон - conic-gradient с линейными градиентами внутри сегментов */}
 					<div
 						className="absolute inset-0"
 						style={{
-							background: `conic-gradient(${ROULETTE_SEGMENTS.map((s, i) => {
-								// Основной цвет для conic-gradient - средние цвета из новых градиентов
-								const baseColors: Record<string, string> = {
-									gold: '#A25A1E', // средний из золотого градиента
-									black: '#5E411D', // средний из черного градиента
-									blue: '#1E3469', // средний из синего градиента
-									red: '#D34415' // средний из красного градиента
-								}
-								return `${baseColors[s.color] || '#000'} ${i * segmentAngle}deg ${(i + 1) * segmentAngle}deg`
-							}).join(', ')})`
+							background: (() => {
+								// Данные о градиентах из COLORS
+								const gradientStops = {
+									gold: [
+										{ color: '#FFB81F', pos: 9 },
+										{ color: '#A25A1E', pos: 38 },
+										{ color: '#935C14', pos: 55 },
+										{ color: '#5D3E15', pos: 90 }
+									],
+									black: [
+										{ color: '#493C2C', pos: 9 },
+										{ color: '#5E411D', pos: 33 },
+										{ color: '#401F0B', pos: 55 },
+										{ color: '#140501', pos: 90 }
+									],
+									blue: [
+										{ color: '#124472', pos: 9 },
+										{ color: '#1E3469', pos: 33 },
+										{ color: '#2B1C61', pos: 55 },
+										{ color: '#1D003E', pos: 90 }
+									],
+									red: [
+										{ color: '#C35B15', pos: 9 },
+										{ color: '#D34415', pos: 33 },
+										{ color: '#C42A03', pos: 55 },
+										{ color: '#830000', pos: 90 }
+									]
+								} as const
+
+								// Собираем все остановки для conic-gradient
+								const stops: string[] = []
+								ROULETTE_SEGMENTS.forEach((segment, segmentIndex) => {
+									const segmentStart = segmentIndex * segmentAngle
+									const segmentEnd = (segmentIndex + 1) * segmentAngle
+									const segmentLength = segmentAngle
+									const stopsData = gradientStops[segment.color as keyof typeof gradientStops] || gradientStops.black
+
+									// Добавляем первую остановку в начале сегмента
+									stops.push(`${stopsData[0].color} ${segmentStart}deg`)
+
+									// Добавляем промежуточные остановки
+									stopsData.forEach(stop => {
+										const angle = segmentStart + (stop.pos / 100) * segmentLength
+										stops.push(`${stop.color} ${angle}deg`)
+									})
+
+									// Добавляем последнюю остановку в конце сегмента (последний цвет)
+									stops.push(`${stopsData[stopsData.length - 1].color} ${segmentEnd}deg`)
+								})
+
+								// Убираем дубликаты подряд (если есть) и формируем строку
+								const uniqueStops = stops.filter((stop, idx, arr) => idx === 0 || stop !== arr[idx - 1])
+								return `conic-gradient(${uniqueStops.join(', ')})`
+							})()
+						}}
+					/>
+
+					{/* Линейный градиент поверх конического для объёма */}
+					<div
+						className="absolute inset-0"
+						style={{
+							background: 'linear-gradient(0deg, #C1C1C1 9%, #A0A0A0 33%, #404040 55%, #0E0E0E 90%)',
+							mixBlendMode: 'overlay',
+							opacity: 0.1
+						}}
+					/>
+
+					{/* Оверлей текстуры для винтажного вида */}
+					<div
+						className="absolute inset-0"
+						style={{
+							backgroundImage: "url('/segment-overlay.png')",
+							backgroundSize: 'cover',
+							backgroundRepeat: 'no-repeat',
+							backgroundPosition: 'center',
+							mixBlendMode: 'overlay',
+							opacity: 0.6
 						}}
 					/>
 
@@ -173,14 +239,25 @@ export function Wheel({ rotation, isSpinning, segmentAngle }: WheelProps) {
 									style={{ filter: 'brightness(1.2)' }}
 								/>
 							</div>
-							{/* Бордер сегментов */}
-							<Image
-								src="/segment-border.png"
-								alt="бордер сегментов"
-								width={115}
-								height={25}
-								className="absolute top-0"
-							/>
+							{/* Бордер сегментов с оверлеем */}
+							<div className="absolute top-0 w-[89px] h-[20px]">
+								<Image
+									src="/segment-border.png"
+									alt="бордер сегментов"
+									width={89}
+									height={20}
+									className="absolute inset-0"
+								/>
+								<div
+									className="absolute inset-0"
+									style={{
+										backgroundImage: "url('/segment-overlay.png')",
+										backgroundSize: 'cover',
+										mixBlendMode: 'overlay',
+										opacity: 0.6
+									}}
+								/>
+							</div>
 							{/* Текст с объемной тенью */}
 							<div className="relative inline-block top-2.5">
 								{/* Тень */}
@@ -197,7 +274,7 @@ export function Wheel({ rotation, isSpinning, segmentAngle }: WheelProps) {
 										whiteSpace: 'nowrap',
 										wordWrap: 'break-word'
 									}}
-									className="uppercase font-extrabold text-[22px] absolute top-0 left-0 translate-x-[2px] translate-y-[3px]"
+									className="uppercase font-extrabold text-[22px] absolute top-0 left-0 translate-x-[1px] translate-y-[1px]"
 								>
 									{segment.label}
 								</span>
@@ -228,13 +305,13 @@ export function Wheel({ rotation, isSpinning, segmentAngle }: WheelProps) {
 				</div>
 
 				{/* Центр колеса */}
-				<div className="absolute inset-0 m-auto w-16 h-16 flex items-center justify-center shadow-lg z-10">
+				<div className="absolute inset-0 m-auto w-20 h-20 flex items-center justify-center shadow-lg z-10">
 					<div className="relative w-full h-full">
 						<Image
 							src="/center.png"
 							alt="Center"
 							fill
-							sizes="64px"
+							sizes="80px"
 							className="object-contain"
 						/>
 					</div>

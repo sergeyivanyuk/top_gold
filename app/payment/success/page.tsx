@@ -61,6 +61,8 @@ function PaymentSuccessContent() {
 					placeholder="Введите сюда ваш ник"
 					className="w-full py-3 px-4 rounded-xl bg-black/30 border border-gold-light text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold mb-6"
 				/>
+				{/* номер заказа */}
+				<p className="text-gray-subtext text-center mb-6">Ваш номер заказа 14314141221</p>
 				{/* Кнопка продолжить */}
 				<button
 					onClick={handleContinue}

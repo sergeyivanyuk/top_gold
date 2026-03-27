@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/Button'
 import { PaymentMethod } from '@/types/payment'
 import { ChevronLeft } from 'lucide-react'
 import Image from 'next/image'
-import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
 
@@ -13,6 +12,8 @@ function PaymentContent() {
 	const [showConfirmModal, setShowConfirmModal] = useState(false)
 	const [showBonusModal, setShowBonusModal] = useState(false)
 	const [showPromoModal, setShowPromoModal] = useState(false)
+	const [showPrivacyModal, setShowPrivacyModal] = useState(false)
+	const [showTermsModal, setShowTermsModal] = useState(false)
 	const [nickname, setNickname] = useState('')
 	const [promoCode, setPromoCode] = useState('')
 	const [isLoading, setIsLoading] = useState(false)
@@ -109,7 +110,7 @@ function PaymentContent() {
 
 	return (
 		<main className=" flex flex-col items-center justify-start p-4">
-			{/* Заголовок страницы и кнопка назад */}
+			{/* Заголовок страницы и кнопки назад и поддержка */}
 			<div className="relative w-full text-center">
 				<button
 					className="absolute top-0 left-0 btn-nav"
@@ -273,19 +274,19 @@ function PaymentContent() {
 			<div className="mt-3 text-white/50 text-[12px] flex flex-col items-center gap-1">
 				<div className="flex items-center gap-0.5">
 					{/* Пользовательское соглашение */}
-					<Link
-						href="#"
-						className="text-white/50 underline text-[10px]"
+					<button
+						className="text-white/50 underline text-[10px] bg-transparent border-none p-0 cursor-pointer"
+						onClick={() => setShowTermsModal(true)}
 					>
 						Пользовательское соглашение
-					</Link>{' '}
+					</button>{' '}
 					| {/* Политика конфиденциальности */}
-					<Link
-						href="#"
-						className="text-white/50 underline text-[10px]"
+					<button
+						className="text-white/50 underline text-[10px] bg-transparent border-none p-0 cursor-pointer"
+						onClick={() => setShowPrivacyModal(true)}
 					>
 						Политика конфиденциальности
-					</Link>
+					</button>
 				</div>
 				{/* Промокод */}
 				<button
@@ -506,6 +507,155 @@ function PaymentContent() {
 							className={`px-12 py-3 w-full transition-colors ${promoCode.trim() ? 'btn-gold-slide' : 'btn-gold-slide opacity-50 cursor-not-allowed'}`}
 						>
 							Продолжить
+						</button>
+					</div>
+				</div>
+			)}
+			{/* Модальное окно политики конфиденциальности */}
+			{showPrivacyModal && (
+				<div
+					className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs"
+					onClick={() => setShowPrivacyModal(false)}
+				>
+					<div
+						className="relative w-[90%] max-w-2xl max-h-[80vh] rounded-2xl p-6 shadow-2xl flex flex-col items-center"
+						style={{
+							background: 'radial-gradient(ellipse 100.00% 100.00% at 49.68% -0.00%, #AA7A2D 0%, #643C1C 25%, #121413 73%)',
+							borderRadius: '20px',
+							outline: '1px rgba(255, 233.54, 111.93, 0.80) solid',
+							outlineOffset: '-1px'
+						}}
+						onClick={e => e.stopPropagation()}
+					>
+						<h2 className="text-win-title mb-4 text-center">Политика конфиденциальности</h2>
+						<div className="w-full h-0 opacity-40 outline-1 outline-offset-[-0.50px] outline-orange-200 my-2" />
+						<div
+							className="w-full overflow-y-auto max-h-[60vh] text-white text-[10px] leading-relaxed px-2"
+							style={{ whiteSpace: 'pre-line' }}
+						>
+							<p>1. Общие положения</p>
+							<p>
+								1.1. Настоящая Политика конфиденциальности (далее — «Политика») регулирует порядок обработки и защиты информации, которую Пользователь
+								передаёт при использовании сервиса (далее — «Сервис»).{' '}
+							</p>
+							<p>
+								1.2. Используя Сервис, Пользователь подтверждает своё согласие с условиями Политики. Если Пользователь не согласен с условиями — он
+								обязан прекратить использование Сервиса.
+							</p>
+							<p>2. Сбор информации</p>
+							<p>
+								{' '}
+								2.1. Сервис может собирать следующие типы данных: идентификаторы аккаунта (логин, ID, никнейм и т.п.); техническую информацию
+								(IP-адрес, данные о браузере, устройстве и операционной системе); историю взаимодействий с Сервисом.
+							</p>
+							<p>
+								2.2. Сервис не требует от Пользователя предоставления паспортных данных, документов, фотографий или другой личной информации, кроме
+								минимально необходимой для работы.{' '}
+							</p>
+							<p>3. Использование информации </p>
+							<p>
+								3.1. Сервис может использовать полученную информацию исключительно для: обеспечения работы функционала; связи с Пользователем (в том
+								числе для уведомлений и поддержки); анализа и улучшения работы Сервиса.
+							</p>
+							<p>4. Передача информации третьим лицам </p>
+							<p>
+								4.1. Администрация не передаёт полученные данные третьим лицам, за исключением случаев: если это требуется по закону; если это
+								необходимо для исполнения обязательств перед Пользователем (например, при работе с платёжными системами); если Пользователь сам дал на
+								это согласие.
+							</p>
+							<p>5. Хранение и защита данных</p>
+							<p>5.1. Данные хранятся в течение срока, необходимого для достижения целей обработки.</p>
+							<p>
+								5.2. Администрация принимает разумные меры для защиты данных, но не гарантирует абсолютную безопасность информации при передаче через
+								интернет.
+							</p>
+							<p>6. Отказ от ответственности</p>
+							<p>6.1. Пользователь понимает и соглашается, что передача информации через интернет всегда сопряжена с рисками.</p>
+							<p>
+								{' '}
+								6.2. Администрация не несёт ответственности за утрату, кражу или раскрытие данных, если это произошло по вине третьих лиц или самого
+								Пользователя.
+							</p>
+							<p>7. Изменения в Политике</p>
+							<p>7.1. Администрация вправе изменять условия Политики без предварительного уведомления.</p>
+							<p>7.2.Продолжение использования Сервиса после внесения изменений означает согласие Пользователя с новой редакцией Политики.</p>
+						</div>
+						<button
+							onClick={() => setShowPrivacyModal(false)}
+							className="mt-6 px-12 py-3 w-full transition-colors btn-gold-slide"
+						>
+							Закрыть
+						</button>
+					</div>
+				</div>
+			)}
+			{/* Модальное окно пользовательского соглашения */}
+			{showTermsModal && (
+				<div
+					className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs"
+					onClick={() => setShowTermsModal(false)}
+				>
+					<div
+						className="relative w-[90%] max-w-2xl max-h-[80vh] rounded-2xl p-6 shadow-2xl flex flex-col items-center"
+						style={{
+							background: 'radial-gradient(ellipse 100.00% 100.00% at 49.68% -0.00%, #AA7A2D 0%, #643C1C 25%, #121413 73%)',
+							borderRadius: '20px',
+							outline: '1px rgba(255, 233.54, 111.93, 0.80) solid',
+							outlineOffset: '-1px'
+						}}
+						onClick={e => e.stopPropagation()}
+					>
+						<h2 className="text-win-title mb-4 text-center">Пользовательское соглашение</h2>
+						<div className="w-full h-0 opacity-40 outline-1 outline-offset-[-0.50px] outline-orange-200 my-2" />
+						<div
+							className="w-full overflow-y-auto max-h-[60vh] text-white text-[10px] leading-relaxed px-2"
+							style={{ whiteSpace: 'pre-line' }}
+						>
+							<p>1. Общие положения</p>
+							<p>
+								1.1. Настоящее Пользовательское соглашение (далее — «Соглашение») регулирует отношения между Пользователем и Администрацией Сервиса
+								(далее — «Сервис»).{' '}
+							</p>
+							<p>1.2. Используя Сервис, Пользователь подтверждает, что он прочитал, понял и полностью согласен со всеми условиями Соглашения.</p>
+							<p>1.3. Если Пользователь не согласен с каким‑либо условием Соглашения, он обязан немедленно прекратить использование Сервиса.</p>
+							<p>2. Права и обязанности Пользователя</p>
+							<p>2.1. Пользователь обязуется:</p>
+							<ul>
+								<li>использовать Сервис только в законных целях; </li>
+								<li>не предпринимать действий, которые могут нарушить работу Сервиса или причинить вред другим пользователям;</li>
+								<li>не передавать свои учётные данные третьим лицам.</li>
+							</ul>
+							<p>2.2. Пользователь имеет право:</p>
+							<ul>
+								<li>использовать функционал Сервиса в соответствии с его назначением;</li>
+								<li>обращаться в поддержку по вопросам, связанным с работой Сервиса.</li>
+							</ul>
+							<p>3. Права и обязанности Администрации</p>
+							<p>3.1. Администрация обязуется:</p>
+							<ul>
+								<li>обеспечивать работоспособность Сервиса в пределах технических возможностей;</li>
+								<li>обрабатывать обращения Пользователя в поддержку.</li>
+							</ul>
+							<p>3.2. Администрация имеет право:</p>
+							<ul>
+								<li>в одностороннем порядке изменять условия Соглашения, уведомляя Пользователя путём публикации новой версии на сайте Сервиса;</li>
+								<li>приостанавливать или прекращать работу Сервиса в случае технических неполадок или нарушений со стороны Пользователя.</li>
+							</ul>
+							<p>4. Ограничение ответственности</p>
+							<p>
+								4.1. Сервис предоставляется «как есть». Администрация не гарантирует бесперебойную работу Сервиса и не несёт ответственности за любые
+								прямые или косвенные убытки, возникшие в результате его использования.
+							</p>
+							<p>4.2. Администрация не отвечает за действия третьих лиц, которые могут повлиять на работу Сервиса.</p>
+							<p>5. Заключительные положения</p>
+							<p>5.1. Соглашение вступает в силу с момента начала использования Сервиса и действует до его прекращения.</p>
+							<p>5.2. Все споры, возникающие из Соглашения, подлежат разрешению в соответствии с законодательством Российской Федерации.</p>
+						</div>
+						<button
+							onClick={() => setShowTermsModal(false)}
+							className="mt-6 px-12 py-3 w-full transition-colors btn-gold-slide"
+						>
+							Закрыть
 						</button>
 					</div>
 				</div>

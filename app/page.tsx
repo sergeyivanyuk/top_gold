@@ -7,22 +7,20 @@ import constants from '@/data/constants.json'
 import { useRouletteStore } from '@/lib/store/roulette'
 
 export default function Home() {
-	const { totalSpins, totalGoldWon, remainingSpins } = useRouletteStore()
+	const { remainingSpins } = useRouletteStore()
 
 	return (
 		<main className=" flex flex-col">
 			{/* Статистика */}
-			{remainingSpins > 0 && (
-				<div className="px-4 py-2 flex justify-center">
-					<div className="flex items-center gap-5 px-5 py-1 bg-radial-gold rounded-card border-gold-light outline-offset-[-1px] mb-7.5">
-						<span className="text-secondary-title">Вращений осталось:</span>
-						<GradientNumber
-							value={remainingSpins}
-							size="md"
-						/>
-					</div>
+			<div className="px-4 py-2 flex justify-center">
+				<div className="flex items-center gap-5 px-5 py-1 bg-radial-gold rounded-card border-gold-light outline-offset-[-1px] mb-7.5">
+					<span className="text-secondary-title">Вращений осталось:</span>
+					<GradientNumber
+						value={remainingSpins}
+						size="md"
+					/>
 				</div>
-			)}
+			</div>
 
 			{/* Рулетка */}
 			<div className="flex-1 flex items-center justify-center">

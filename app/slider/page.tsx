@@ -2,7 +2,6 @@
 
 import { FeatureBlock } from '@/components/ui/FeatureBlock'
 import { NavButton } from '@/components/ui/NavButton'
-import { RecentWins } from '@/components/ui/RecentWins'
 import { TariffCard } from '@/components/ui/TariffCard'
 import constants from '@/data/constants.json'
 import { useRouter } from 'next/navigation'
@@ -139,17 +138,29 @@ export default function SliderPage() {
 	useEffect(() => {
 		if (!hintActive) return
 		const duration = 60000 // 60 секунд
-		const interval = 200 // смена направления каждые 0.2 секунды
+		const interval = 300 // интервал обновления (мс)
 		let direction = 1 // 1 для вправо, -1 для влево
 		let elapsed = 0
+		const maxOffset = 10 // максимальное смещение в пикселях
+		const baseSpeed = 6 // максимальная скорость (пикселей за шаг) в центре
+		const minSpeed = 0.4 // минимальная скорость на краях
 
 		const hintInterval = setInterval(() => {
 			setHintOffset(prev => {
-				// Меняем направление при достижении ±5px
-				const newOffset = prev + direction * 2
-				if (Math.abs(newOffset) > 5) {
+				// Линейная зависимость скорости от смещения (быстрее в центре, медленнее на краях)
+				const speed = Math.max(minSpeed, baseSpeed * (1 - Math.abs(prev) / maxOffset))
+				// Новое смещение с учетом направления и скорости
+				let newOffset = prev + direction * speed
+				// Если вышли за границы, меняем направление и отражаем смещение
+				if (Math.abs(newOffset) > maxOffset) {
 					direction *= -1
-					return prev + direction * 2
+					// Отражаем излишек
+					const overshoot = Math.abs(newOffset) - maxOffset
+					newOffset = direction * (maxOffset - overshoot)
+					// Гарантируем, что смещение остаётся в пределах
+					if (Math.abs(newOffset) > maxOffset) {
+						newOffset = direction * maxOffset
+					}
 				}
 				return newOffset
 			})
@@ -244,7 +255,7 @@ export default function SliderPage() {
 						return (
 							<div
 								key={index}
-								className="absolute w-[280px] transition-all duration-300"
+								className="absolute w-[280px] transition-all duration-700 ease-in-out"
 								style={{
 									...style,
 									left: '50%',

@@ -1,6 +1,6 @@
+import constants from '@/data/constants.json'
 import type { RouletteSegment } from '@/types/roulette'
-
-// Цвета сегментов с градиентами (точные значения от пользователя)
+// Цвета сегментов с градиентами (точные значения)
 const COLORS = {
 	gold: 'linear-gradient(0deg,  #FFB81F 9%, #A25A1E 38%, #935C14 55%, #5D3E15 90%)',
 	black: 'linear-gradient(0deg, #493C2C 9%, #5E411D 33%, #401F0B 55%, #140501 90%)',
@@ -11,32 +11,36 @@ const COLORS = {
 // Border для всех сегментов
 export const SEGMENT_BORDER = '2px rgba(255, 233.54, 111.93, 0.90) solid'
 
-// Сегменты рулетки (10 сегментов)
-export const ROULETTE_SEGMENTS: RouletteSegment[] = [
-	// Черный - 3000 (3 штуки)
-	{ id: 'black1', label: '3000', gold: 3000, color: 'black', gradient: COLORS.black, probability: 9 },
-	// Синий - 1000 (3 штуки)
-	{ id: 'blue1', label: '1000', gold: 1000, color: 'blue', gradient: COLORS.blue, probability: 19 },
-	// Красный - 5000 (3 штуки)
-	{ id: 'red1', label: '5000', gold: 5000, color: 'red', gradient: COLORS.red, probability: 5 },
+// Сегменты рулетки (10 сегментов) - динамически на основе constants.json
+export const ROULETTE_SEGMENTS: RouletteSegment[] = (() => {
+	// Маппинг ID сегментов к цветам (вероятности берутся из constants.json)
+	const segmentDefinitions = [
+		{ id: 'black1', color: 'black' },
+		{ id: 'blue1', color: 'blue' },
+		{ id: 'red1', color: 'red' },
+		{ id: 'black2', color: 'black' },
+		{ id: 'blue2', color: 'blue' },
+		{ id: 'red2', color: 'red' },
+		{ id: 'black3', color: 'black' },
+		{ id: 'blue3', color: 'blue' },
+		{ id: 'red3', color: 'red' },
+		{ id: 'gold', color: 'gold' }
+	] as const
 
-	// Черный
-	{ id: 'black2', label: '3000', gold: 3000, color: 'black', gradient: COLORS.black, probability: 9 },
-	// Синий
-	{ id: 'blue2', label: '1000', gold: 1000, color: 'blue', gradient: COLORS.blue, probability: 19 },
-	// Красный
-	{ id: 'red2', label: '5000', gold: 5000, color: 'red', gradient: COLORS.red, probability: 5 },
-
-	// Черный
-	{ id: 'black3', label: '3000', gold: 3000, color: 'black', gradient: COLORS.black, probability: 9 },
-	// Синий
-	{ id: 'blue3', label: '1000', gold: 1000, color: 'blue', gradient: COLORS.blue, probability: 19 },
-	// Красный
-	{ id: 'red3', label: '5000', gold: 5000, color: 'red', gradient: COLORS.red, probability: 5 },
-
-	// Золотой - 10000 (1 штука, самый редкий) - в конце
-	{ id: 'gold', label: '10000', gold: 10000, color: 'gold', gradient: COLORS.gold, probability: 1 }
-]
+	return segmentDefinitions.map(def => {
+		const segmentData = constants.segments[def.id as keyof typeof constants.segments]
+		const gold = segmentData?.gold ?? 0
+		const probability = segmentData?.probability ?? 1 // fallback
+		return {
+			id: def.id,
+			label: gold.toString(),
+			gold,
+			color: def.color,
+			gradient: COLORS[def.color as keyof typeof COLORS],
+			probability
+		}
+	})
+})()
 
 // Градиент для разделительных линий
 export const SEGMENT_BORDER_GRADIENT = 'from-yellow-400 via-yellow-600 to-yellow-400'
@@ -44,7 +48,7 @@ export const SEGMENT_BORDER_GRADIENT = 'from-yellow-400 via-yellow-600 to-yellow
 // Настройки рулетки
 export const ROULETTE_CONFIG = {
 	SPIN_DURATION: 10000, // время вращения в мс
-	MIN_SPINS: 5, // минимум полных оборотов
+	MIN_SPINS: 7, // минимум полных оборотов
 	DECELERATION: 2.5 // коэффициент замедления
 } as const
 
