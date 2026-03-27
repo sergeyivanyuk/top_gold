@@ -127,13 +127,13 @@ export function Roulette({ onWin }: RouletteProps) {
 		// Флаг, чтобы не показывать модальное окно дважды
 		let winModalShown = false
 
-		// Показываем выигрыш через 3 секунды (до остановки рулетки)
+		// Показываем выигрыш через 8.5 секунд (до остановки рулетки)
 		const winTimer = setTimeout(() => {
 			if (!winModalShown) {
 				winModalShown = true
 				setShowWinModal(true)
 			}
-		}, 11500)
+		}, 8500)
 
 		const animate = () => {
 			const elapsed = Date.now() - startTime
