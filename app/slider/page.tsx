@@ -6,6 +6,7 @@ import { TariffCard } from '@/components/ui/TariffCard'
 import constants from '@/data/constants.json'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
+import { RecentWins } from '../../components/ui/RecentWins'
 
 export default function SliderPage() {
 	const [currentSlide, setCurrentSlide] = useState(1) // 0-based index, но слайдер на 2 слайдере (индекс 1)
@@ -15,38 +16,7 @@ export default function SliderPage() {
 	const [startX, setStartX] = useState(0)
 	const [hintOffset, setHintOffset] = useState(0)
 	const [hintActive, setHintActive] = useState(true)
-	const [currentWinIndex, setCurrentWinIndex] = useState(0)
-	const [isResetting, setIsResetting] = useState(false)
 	const router = useRouter()
-
-	// Создаём расширенный массив для бесконечной анимации
-	const extendedWins = React.useMemo(() => {
-		return [...constants.recentWins, ...constants.recentWins.slice(0, 3)]
-	}, [constants.recentWins])
-
-	// Анимация ротации последних выигрышей
-	useEffect(() => {
-		const interval = setInterval(() => {
-			setCurrentWinIndex(prev => {
-				const next = prev + 1
-				// Если дошли до конца оригинального массива, сбросим на 0
-				if (next > constants.recentWins.length) {
-					setIsResetting(true)
-					return 0
-				}
-				return next
-			})
-		}, 2000) // каждые 2 секунды
-		return () => clearInterval(interval)
-	}, [constants.recentWins.length])
-
-	// После сброса включаем обратно transition
-	useEffect(() => {
-		if (isResetting) {
-			const timer = setTimeout(() => setIsResetting(false), 50)
-			return () => clearTimeout(timer)
-		}
-	}, [isResetting])
 
 	const slides = [
 		{
@@ -303,6 +273,11 @@ export default function SliderPage() {
 					title="Работаем с 2023 года"
 				/>
 			</div>
+			{/* Блок с выйгрывшими */}
+			<RecentWins
+				wins={constants.recentWins}
+				intervalMs={2000}
+			/>
 		</main>
 	)
 }

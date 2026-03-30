@@ -1,3 +1,4 @@
+import { telegramService } from '@/services/telegram/telegram.service'
 import { PaymentRequest, PaymentResponse, PaymentStatus } from '@/types/payment'
 
 /**
@@ -40,9 +41,22 @@ export class MockPaymentService extends PaymentService {
 	async handleWebhook(data: any): Promise<{ status: PaymentStatus; paymentId: string }> {
 		console.log('MockPaymentService: handleWebhook', data)
 		// В тестовом режиме просто возвращаем успех
+		const status = PaymentStatus.SUCCESS
+		const paymentId = data.paymentId || 'unknown'
+
+		// Отправляем уведомление о покупке (фиктивные данные)
+		if (status === PaymentStatus.SUCCESS) {
+			const amount = data.amount || 179
+			const orderNumber = data.orderNumber || paymentId
+			const paymentTime = data.paymentTime || new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' }) + ' МСК'
+			telegramService.sendPurchaseNotification(amount, orderNumber, paymentTime).catch((err: any) => {
+				console.error('Ошибка отправки уведомления о покупке:', err)
+			})
+		}
+
 		return {
-			status: PaymentStatus.SUCCESS,
-			paymentId: data.paymentId || 'unknown'
+			status,
+			paymentId
 		}
 	}
 }

@@ -18,12 +18,17 @@ interface RouletteStore {
 	// Оставшиеся вращения
 	remainingSpins: number
 
+	// Накопленное золото за текущий тариф
+	tariffGold: number
+
 	// Действия
 	setSpinning: (spinning: boolean) => void
 	setCurrentSegment: (segment: RouletteSegment | null) => void
 	addWinner: (winner: Winner) => void
 	incrementSpins: () => void
 	addGold: (amount: number) => void
+	addTariffGold: (amount: number) => void
+	resetTariffGold: () => void
 	setRemainingSpins: (count: number) => void
 	decrementRemainingSpins: () => void
 	reset: () => void
@@ -39,6 +44,7 @@ export const useRouletteStore = create<RouletteStore>()(
 			totalGoldWon: 0,
 			winners: [],
 			remainingSpins: 1,
+			tariffGold: 0,
 
 			setSpinning: spinning => set({ isSpinning: spinning }),
 
@@ -59,6 +65,13 @@ export const useRouletteStore = create<RouletteStore>()(
 					totalGoldWon: state.totalGoldWon + amount
 				})),
 
+			addTariffGold: amount =>
+				set(state => ({
+					tariffGold: state.tariffGold + amount
+				})),
+
+			resetTariffGold: () => set({ tariffGold: 0 }),
+
 			setRemainingSpins: count => set({ remainingSpins: count }),
 
 			decrementRemainingSpins: () =>
@@ -74,7 +87,8 @@ export const useRouletteStore = create<RouletteStore>()(
 					totalSpins: 0,
 					totalGoldWon: 0,
 					winners: [],
-					remainingSpins: 1
+					remainingSpins: 1,
+					tariffGold: 0
 				})
 		}),
 		{

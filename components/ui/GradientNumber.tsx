@@ -1,6 +1,7 @@
 'use client'
 
 import { ROULETTE_NUMBER_GRADIENT, ROULETTE_SHADOW_GRADIENT } from '@/lib/constants'
+import { getGradientTextStyles } from '@/lib/utils'
 
 interface GradientNumberProps {
 	value: number | string
@@ -32,35 +33,31 @@ export function GradientNumber({ value, size = 'md', className = '', shadowClass
 		whiteSpace: 'nowrap' as const
 	}
 
+	const shadowStyle = {
+		...getGradientTextStyles(ROULETTE_SHADOW_GRADIENT),
+		...baseStyle,
+		lineHeight: lineHeight[size]
+	}
+
+	const mainStyle = {
+		...getGradientTextStyles(ROULETTE_NUMBER_GRADIENT),
+		...baseStyle,
+		lineHeight: lineHeight[size]
+	}
+
 	return (
 		<div className={`relative inline-block h-[${lineHeight[size]}] ${className}`}>
 			{/* Тень */}
 			<span
 				className={`absolute top-0 left-0 translate-x-[1px] translate-y-[1px] ${sizeStyles[size]} ${shadowClassName}`}
-				style={{
-					...baseStyle,
-					backgroundImage: ROULETTE_SHADOW_GRADIENT,
-					WebkitBackgroundClip: 'text',
-					WebkitTextFillColor: 'transparent',
-					backgroundClip: 'text',
-					color: 'transparent',
-					lineHeight: lineHeight[size]
-				}}
+				style={shadowStyle}
 			>
 				{value}
 			</span>
 			{/* Основной текст */}
 			<span
 				className={`relative ${sizeStyles[size]}`}
-				style={{
-					...baseStyle,
-					backgroundImage: ROULETTE_NUMBER_GRADIENT,
-					WebkitBackgroundClip: 'text',
-					WebkitTextFillColor: 'transparent',
-					backgroundClip: 'text',
-					color: 'transparent',
-					lineHeight: lineHeight[size]
-				}}
+				style={mainStyle}
 			>
 				{value}
 			</span>

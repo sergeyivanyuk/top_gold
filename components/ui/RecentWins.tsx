@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { useInfiniteScroll } from '@/lib/hooks/useInfiniteScroll'
 
 interface Win {
 	username: string
@@ -9,14 +10,24 @@ interface Win {
 
 interface RecentWinsProps {
 	wins: Win[]
-	currentIndex: number
-	isResetting: boolean
+	intervalMs?: number
 	className?: string
 }
 
-export function RecentWins({ wins, currentIndex, isResetting, className = '' }: RecentWinsProps) {
+export function RecentWins({ wins, intervalMs = 2000, className = '' }: RecentWinsProps) {
+	const itemsPerView = 3
+	const { currentIndex, isResetting } = useInfiniteScroll({
+		itemCount: wins.length,
+		itemsPerView,
+		intervalMs,
+		autoPlay: true
+	})
+
 	// Создаём расширенный массив для бесконечной анимации
-	const extendedWins = [...wins, ...wins.slice(0, 3)]
+	const extendedWins = [...wins, ...wins.slice(0, itemsPerView)]
+
+	// Высота одного элемента (включая gap)
+	const itemHeight = 48 // 40px высота элемента + 8px gap
 
 	return (
 		<div
@@ -24,17 +35,17 @@ export function RecentWins({ wins, currentIndex, isResetting, className = '' }: 
 		>
 			<h2 className="text-center text-secondary-title mb-2.5">Последние выигрыши</h2>
 			<div
-				className="items w-full flex flex-col gap-3 h-[180px] overflow-hidden relative"
+				className="items w-full flex flex-col gap-2 h-[120px] overflow-hidden relative"
 				aria-live="polite"
 				aria-atomic="true"
 			>
 				<div
-					className={isResetting ? '' : 'transition-transform duration-200'}
-					style={{ transform: `translateY(-${currentIndex * 60}px)` }}
+					className={isResetting ? '' : 'transition-transform duration-300 ease-in-out'}
+					style={{ transform: `translateY(-${currentIndex * itemHeight}px)` }}
 				>
 					{extendedWins.map((win, index) => (
 						<div key={index}>
-							<div className="flex items-center justify-between w-full h-[60px]">
+							<div className="flex items-center justify-between w-full h-[40px]">
 								<span className="text-center text-base font-medium text-white">{win.username}</span>
 								<div className="flex items-center">
 									<span className="text-stat-value">{win.gold}</span>

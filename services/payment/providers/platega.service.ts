@@ -1,3 +1,4 @@
+import { telegramService } from '@/services/telegram/telegram.service'
 import { PaymentMethod, PaymentRequest, PaymentResponse, PaymentStatus } from '@/types/payment'
 import { PaymentService } from '../payment.service'
 
@@ -23,9 +24,10 @@ export class PlategaPaymentService extends PaymentService {
 		const mapping: Record<PaymentMethod, number> = {
 			[PaymentMethod.SBP]: 2, // СБП / QR
 			[PaymentMethod.CARD]: 10, // CardRu (карты МИР)
-			[PaymentMethod.YOOMONEY]: 1, // предположительно P2P (не указано в доке)
-			[PaymentMethod.QIWI]: 1,
-			[PaymentMethod.OTHER]: 1
+			[PaymentMethod.INTERNATIONAL]: 12, // Международный эквайринг
+			[PaymentMethod.YOOMONEY]: 1, // P2P (требует уточнения)
+			[PaymentMethod.QIWI]: 1, // P2P (требует уточнения)
+			[PaymentMethod.OTHER]: 1 // P2P (требует уточнения)
 		}
 		return mapping[method] || 1
 	}
@@ -109,12 +111,12 @@ export class PlategaPaymentService extends PaymentService {
 			const statusMap: Record<string, PaymentStatus> = {
 				PENDING: PaymentStatus.PENDING,
 				CONFIRMED: PaymentStatus.SUCCESS,
-				EXPIRED: PaymentStatus.FAILED,
+				EXPIRED: PaymentStatus.EXPIRED,
 				CANCELED: PaymentStatus.CANCELED,
 				FAILED: PaymentStatus.FAILED
 			}
 			return statusMap[status] || PaymentStatus.PENDING
-		} catch (error) {
+		} catch (error: any) {
 			console.error('Failed to check payment status:', error)
 			return PaymentStatus.FAILED
 		}
@@ -128,11 +130,69 @@ export class PlategaPaymentService extends PaymentService {
 			CONFIRMED: PaymentStatus.SUCCESS,
 			CANCELED: PaymentStatus.CANCELED,
 			FAILED: PaymentStatus.FAILED,
-			EXPIRED: PaymentStatus.FAILED
+			EXPIRED: PaymentStatus.EXPIRED
 		}
+		const paymentStatus = statusMap[status] || PaymentStatus.PENDING
+
+		// Отправляем уведомление о покупке при успешном платеже
+		if (paymentStatus === PaymentStatus.SUCCESS) {
+			const amount = data.amount || data.paymentDetails?.amount || 0
+			const orderNumber = paymentId
+			const paymentTime = new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' }) + ' МСК'
+			telegramService.sendPurchaseNotification(amount, orderNumber, paymentTime).catch((err: any) => {
+				console.error('Ошибка отправки уведомления о покупке:', err)
+			})
+		}
+
 		return {
-			status: statusMap[status] || PaymentStatus.PENDING,
+			status: paymentStatus,
 			paymentId
+		}
+	}
+
+	/**
+	 * Получение текущего курса обмена для указанного платёжного метода и валюты.
+	 * @param paymentMethod - ID платёжного метода (2, 10, 12 и т.д.)
+	 * @param currencyFrom - Исходная валюта (например, 'RUB')
+	 * @param currencyTo - Целевая валюта (например, 'USDT')
+	 * @returns Объект с курсом и временем обновления
+	 */
+	async getExchangeRate(
+		paymentMethod: number,
+		currencyFrom: string = 'RUB',
+		currencyTo: string = 'USDT'
+	): Promise<{
+		paymentMethod: number
+		currencyFrom: string
+		currencyTo: string
+		rate: number
+		updatedAt: string
+	} | null> {
+		try {
+			const url = new URL(`${PLATEGA_API_URL}/rates/payment_method_rate`)
+			url.searchParams.append('merchantId', this.merchantId)
+			url.searchParams.append('paymentMethod', paymentMethod.toString())
+			url.searchParams.append('currencyFrom', currencyFrom)
+			url.searchParams.append('currencyTo', currencyTo)
+
+			const response = await fetch(url.toString(), {
+				headers: {
+					accept: 'application/json',
+					'X-MerchantId': this.merchantId,
+					'X-Secret': this.apiKey
+				}
+			})
+
+			if (!response.ok) {
+				console.error('Failed to fetch exchange rate:', response.status)
+				return null
+			}
+
+			const data = await response.json()
+			return data
+		} catch (error) {
+			console.error('Error fetching exchange rate:', error)
+			return null
 		}
 	}
 }

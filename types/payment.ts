@@ -3,6 +3,7 @@
 export enum PaymentMethod {
 	SBP = 'sbp',
 	CARD = 'card',
+	INTERNATIONAL = 'international',
 	YOOMONEY = 'yoomoney',
 	QIWI = 'qiwi',
 	OTHER = 'other'
@@ -12,7 +13,8 @@ export enum PaymentStatus {
 	PENDING = 'pending',
 	SUCCESS = 'success',
 	FAILED = 'failed',
-	CANCELED = 'canceled'
+	CANCELED = 'canceled',
+	EXPIRED = 'expired'
 }
 
 export interface PaymentTariff {

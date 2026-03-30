@@ -3,10 +3,12 @@
 import { Button } from '@/components/ui/Button'
 import { getRandomSegment, ROULETTE_CONFIG, ROULETTE_SEGMENTS } from '@/config/roulette'
 import constants from '@/data/constants.json'
+import { useAudio } from '@/lib/hooks/useAudio'
 import { useRouletteStore } from '@/lib/store/roulette'
 import { cn } from '@/lib/utils'
+import { telegramService } from '@/services/telegram/telegram.service'
 import { RotateCw } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { ExtraSpinModal } from './roulette/ExtraSpinModal'
 import { Wheel } from './roulette/Wheel'
 import { WinModal } from './roulette/WinModal'
@@ -23,31 +25,25 @@ export function Roulette({ onWin }: RouletteProps) {
 	const [winAmount, setWinAmount] = useState(0)
 	const [showExtraSpinModal, setShowExtraSpinModal] = useState(false)
 
-	const audioRef = useRef<HTMLAudioElement | null>(null)
-	const buttonAudioRef = useRef<HTMLAudioElement | null>(null)
+	const { addWinner, incrementSpins, addGold, addTariffGold, resetTariffGold, tariffGold, remainingSpins, totalSpins, decrementRemainingSpins } =
+		useRouletteStore()
 
-	const { addWinner, incrementSpins, addGold, remainingSpins, totalSpins, decrementRemainingSpins } = useRouletteStore()
+	// Аудио для вращения колеса
+	const {
+		play: playWheelSound,
+		pause: pauseWheelSound,
+		audioRef: wheelAudioRef
+	} = useAudio({
+		src: '/wheel.mp3',
+		volume: 0.4,
+		loop: true
+	})
 
-	// Инициализация аудиоэлементов
-	useEffect(() => {
-		audioRef.current = new Audio('/wheel.mp3')
-		audioRef.current.volume = 0.4
-		audioRef.current.loop = true
-
-		buttonAudioRef.current = new Audio('/button.mp3')
-		buttonAudioRef.current.volume = 0.4
-
-		return () => {
-			if (audioRef.current) {
-				audioRef.current.pause()
-				audioRef.current = null
-			}
-			if (buttonAudioRef.current) {
-				buttonAudioRef.current.pause()
-				buttonAudioRef.current = null
-			}
-		}
-	}, [])
+	// Аудио для нажатия кнопки
+	const { play: playButtonSound, audioRef: buttonAudioRef } = useAudio({
+		src: '/button.mp3',
+		volume: 0.4
+	})
 
 	// Подкрутка (для админа) - значение берётся из конфигурационного файла data/constants.json
 	// Возможные значения: 'gold', 'black1', 'black2', 'black3', 'blue1', 'blue2', 'blue3', 'red1', 'red2', 'red3'
@@ -62,37 +58,45 @@ export function Roulette({ onWin }: RouletteProps) {
 		setIsSpinning(true)
 		setSelectedSegment(null)
 
+		// Дополнительная корректировка угла для совпадения визуального и вычисленного сегмента
+		const ANGLE_CORRECTION = -11 // градусов, подобрано эмпирически
+
+		console.log('totalSpins:', totalSpins)
+
 		// Воспроизведение звука кнопки
-		if (buttonAudioRef.current) {
-			buttonAudioRef.current.currentTime = 0
-			buttonAudioRef.current.play().catch(e => console.error('Ошибка воспроизведения звука кнопки:', e))
-		}
+		playButtonSound()
 
 		// Воспроизведение звука вращения
-		if (audioRef.current) {
-			audioRef.current.currentTime = 0
-			audioRef.current.play().catch(e => console.error('Ошибка воспроизведения звука:', e))
-		}
+		playWheelSound()
 
 		// Определяем выигрышный сегмент
 		// Первая крутка всегда даёт золотой сегмент (10000)
 		let winningSegment
 		if (totalSpins === 0) {
-			winningSegment = ROULETTE_SEGMENTS.find(s => s.id === 'gold') || getRandomSegment(overrideSegment || undefined)
+			const goldSegment = ROULETTE_SEGMENTS.find(s => s.id === 'gold')
+			if (!goldSegment) {
+				console.error('Золотой сегмент не найден в ROULETTE_SEGMENTS')
+				winningSegment = getRandomSegment(overrideSegment || undefined)
+			} else {
+				winningSegment = goldSegment
+			}
 		} else {
 			winningSegment = getRandomSegment(overrideSegment || undefined)
 		}
+
+		console.log('Выбран сегмент (вероятностно):', winningSegment.id, 'gold:', winningSegment.gold)
 
 		// Вычисляем угол для этого сегмента
 		const segmentIndex = ROULETTE_SEGMENTS.findIndex(s => s.id === winningSegment.id)
 
 		// Центр сегмента находится в: segmentIndex * segmentAngle + segmentAngle / 2
-		// Чтобы этот сегмент оказался под стрелкой (вверху, 0 градусов),
-		// нужно повернуть колесо так, чтобы сегмент оказался в позиции 0
-		// Сегмент i находится от i*angle до (i+1)*angle
-		// Центр сегмента: i*angle + angle/2
-		// Чтобы центр сегмента оказался вверху: rotation + (360 - (i*angle + angle/2))
-		const segmentCenterAngle = segmentIndex * segmentAngle + segmentAngle / 2
+		// Но в Wheel.tsx сегменты отрисованы со смещением +segmentAngle (строка 87)
+		// transform: rotate(${index * segmentAngle + segmentAngle}deg)
+		// Это означает, что сегмент с индексом 0 начинается не с 0°, а с segmentAngle градусов.
+		// Дополнительная корректировка ANGLE_CORRECTION для совпадения визуального и вычисленного сегмента
+		// Фактический центр сегмента с учётом смещения:
+		const segmentCenterAngle = segmentIndex * segmentAngle + segmentAngle + ANGLE_CORRECTION + segmentAngle / 2
+		console.log('segmentIndex:', segmentIndex, 'segmentCenterAngle:', segmentCenterAngle)
 
 		// Добавляем несколько полных оборотов + небольшое случайное смещение внутри сегмента
 		let spins = ROULETTE_CONFIG.MIN_SPINS
@@ -153,25 +157,33 @@ export function Roulette({ onWin }: RouletteProps) {
 				// Стрелка вверху (0 градусов), колесо повернуто на finalRotation
 				// Сегмент под стрелкой: (360 - finalRotation) % 360
 				const pointerAngle = (360 - finalRotation) % 360
-				const winningIndex = Math.floor(pointerAngle / segmentAngle)
+				// Корректируем угол с учётом смещения сегментов в Wheel.tsx (сегмент 0 начинается с segmentAngle градусов)
+				// и корректировки ANGLE_CORRECTION, которая уже учтена в segmentCenterAngle
+				const adjustedAngle = (pointerAngle - ANGLE_CORRECTION - segmentAngle + 720) % 360
+				const winningIndex = Math.floor(adjustedAngle / segmentAngle)
 				const actualWinningSegment = ROULETTE_SEGMENTS[winningIndex]
+
+				console.log('Финальный угол вращения:', finalRotation)
+				console.log('Угол под стрелкой:', pointerAngle)
+				console.log('Скорректированный угол:', adjustedAngle)
+				console.log('Индекс сегмента:', winningIndex)
+				console.log('Фактический сегмент:', actualWinningSegment.id, 'gold:', actualWinningSegment.gold)
+				console.log('Ожидался сегмент:', winningSegment.id, 'gold:', winningSegment.gold)
 
 				setIsSpinning(false)
 				setSelectedSegment(actualWinningSegment.id)
 				setWinAmount(actualWinningSegment.gold)
 
 				// Остановка звука вращения
-				if (audioRef.current) {
-					audioRef.current.pause()
-					audioRef.current.currentTime = 0
+				pauseWheelSound()
+				if (wheelAudioRef.current) {
+					wheelAudioRef.current.currentTime = 0
 				}
 
 				// Обновляем статистику
 				incrementSpins()
 				addGold(actualWinningSegment.gold)
-				if (remainingSpins > 0) {
-					decrementRemainingSpins()
-				}
+				addTariffGold(actualWinningSegment.gold)
 
 				// Добавляем победителя
 				const winner = {
@@ -182,6 +194,22 @@ export function Roulette({ onWin }: RouletteProps) {
 					segment: actualWinningSegment.label
 				}
 				addWinner(winner)
+
+				// Декрементируем оставшиеся вращения, если они есть
+				if (remainingSpins > 0) {
+					decrementRemainingSpins()
+					// Проверяем, закончились ли вращения
+					const newRemaining = useRouletteStore.getState().remainingSpins
+					if (newRemaining === 0) {
+						// Отправляем уведомление о выигрыше за весь тариф
+						const totalTariffGold = useRouletteStore.getState().tariffGold
+						telegramService.sendWinNotification(winner.username, totalTariffGold).catch((err: any) => {
+							console.error('Ошибка отправки уведомления в Telegram:', err)
+						})
+						// Сбрасываем накопленное золото тарифа
+						resetTariffGold()
+					}
+				}
 
 				onWin?.(actualWinningSegment.gold, actualWinningSegment.label)
 
@@ -202,8 +230,12 @@ export function Roulette({ onWin }: RouletteProps) {
 	}
 	const handleCloseWinModal = () => {
 		setShowWinModal(false)
-		// После закрытия окна выигрыша показываем бонусное окно
-		setShowExtraSpinModal(true)
+		// После закрытия окна выигрыша показываем бонусное окно только при первом вращении
+		const { remainingSpins, totalSpins } = useRouletteStore.getState()
+		// Показываем бонусное окно только если это первое вращение, осталось 0 вращений и колесо не вращается
+		if (remainingSpins === 0 && totalSpins === 1 && !isSpinning) {
+			setShowExtraSpinModal(true)
+		}
 	}
 
 	return (

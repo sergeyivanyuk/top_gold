@@ -1,11 +1,11 @@
 import constants from '@/data/constants.json'
 import type { RouletteSegment } from '@/types/roulette'
-// Цвета сегментов с градиентами (точные значения)
-const COLORS = {
-	gold: 'linear-gradient(0deg,  #FFB81F 9%, #A25A1E 38%, #935C14 55%, #5D3E15 90%)',
-	black: 'linear-gradient(0deg, #493C2C 9%, #5E411D 33%, #401F0B 55%, #140501 90%)',
-	blue: 'linear-gradient(0deg, #124472 9%, #1E3469 33%, #2B1C61 55%, #1D003E 90%)',
-	red: 'linear-gradient(0deg, #C35B15 9%, #D34415 33%, #C42A03 55%, #830000 90%)'
+// Цвета сегментов с градиентами (адаптировано под wheel.png) - яркие цвета на краю, темные ближе к центру
+export const COLORS = {
+	gold: 'linear-gradient(0deg, #FF9800 10%, #FFB74D 45%, #FFD54F 62%, #FFEB3B 91%)',
+	black: 'linear-gradient(0deg, #3E2723 10%, #5D4037 45%, #8D6E63 67%, #BCAAA4 91%)',
+	blue: 'linear-gradient(0deg, #0D47A1 10%, #1976D2 45%, #42A5F5 67%, #90CAF9 91%)',
+	red: 'linear-gradient(0deg, #B71C1C 10%, #E53935 45%, #FF7043 67%, #FFAB91 91%)'
 }
 
 // Border для всех сегментов
@@ -15,15 +15,15 @@ export const SEGMENT_BORDER = '2px rgba(255, 233.54, 111.93, 0.90) solid'
 export const ROULETTE_SEGMENTS: RouletteSegment[] = (() => {
 	// Маппинг ID сегментов к цветам (вероятности берутся из constants.json)
 	const segmentDefinitions = [
-		{ id: 'black1', color: 'black' },
-		{ id: 'blue1', color: 'blue' },
 		{ id: 'red1', color: 'red' },
-		{ id: 'black2', color: 'black' },
-		{ id: 'blue2', color: 'blue' },
+		{ id: 'blue1', color: 'blue' },
+		{ id: 'black1', color: 'black' },
 		{ id: 'red2', color: 'red' },
-		{ id: 'black3', color: 'black' },
-		{ id: 'blue3', color: 'blue' },
+		{ id: 'blue2', color: 'blue' },
+		{ id: 'black2', color: 'black' },
 		{ id: 'red3', color: 'red' },
+		{ id: 'blue3', color: 'blue' },
+		{ id: 'black3', color: 'black' },
 		{ id: 'gold', color: 'gold' }
 	] as const
 
