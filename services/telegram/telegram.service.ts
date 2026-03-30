@@ -94,6 +94,18 @@ export class TelegramService {
 		}
 		return this.sendMessage({ chatId, text })
 	}
+
+	/**
+	 * Отправляет вечернюю статистику за день.
+	 * @param usersToday Количество уникальных пользователей за день
+	 * @param purchasesToday Количество покупок тарифов за день
+	 * @param totalAmountToday Общая сумма выручки за день (в рублях)
+	 * @param chatId Опциональный chat ID
+	 */
+	async sendEveningStatistics(usersToday: number, purchasesToday: number, totalAmountToday: number, chatId?: string): Promise<boolean> {
+		const text = `----ВЕЧЕРНЯЯ СТАТИСТИКА----\n\nПользователей сегодня: ${usersToday}\nПокупок сегодня: ${purchasesToday}\nСумма за сегодня: ${totalAmountToday} ₽`
+		return this.sendMessage({ chatId, text })
+	}
 }
 
 // Экспортируем синглтон для удобства
