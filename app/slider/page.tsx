@@ -112,8 +112,8 @@ export default function SliderPage() {
 		let direction = 1 // 1 для вправо, -1 для влево
 		let elapsed = 0
 		const maxOffset = 10 // максимальное смещение в пикселях
-		const baseSpeed = 6 // максимальная скорость (пикселей за шаг) в центре
-		const minSpeed = 0.4 // минимальная скорость на краях
+		const baseSpeed = 5 // максимальная скорость (пикселей за шаг) в центре
+		const minSpeed = 0.2 // минимальная скорость на краях
 
 		const hintInterval = setInterval(() => {
 			setHintOffset(prev => {
