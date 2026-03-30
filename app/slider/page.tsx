@@ -108,7 +108,7 @@ export default function SliderPage() {
 	useEffect(() => {
 		if (!hintActive) return
 		const duration = 60000 // 60 секунд
-		const interval = 300 // интервал обновления (мс)
+		const interval = 600 // интервал обновления (мс)
 		let direction = 1 // 1 для вправо, -1 для влево
 		let elapsed = 0
 		const maxOffset = 10 // максимальное смещение в пикселях
