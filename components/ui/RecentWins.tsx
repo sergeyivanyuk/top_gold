@@ -14,7 +14,7 @@ interface RecentWinsProps {
 	className?: string
 }
 
-export function RecentWins({ wins, intervalMs = 2000, className = '' }: RecentWinsProps) {
+export function RecentWins({ wins, intervalMs = 3000, className = '' }: RecentWinsProps) {
 	const itemsPerView = 3
 	const { currentIndex, isResetting } = useInfiniteScroll({
 		itemCount: wins.length,

@@ -108,11 +108,11 @@ export default function SliderPage() {
 	useEffect(() => {
 		if (!hintActive) return
 		const duration = 60000 // 60 секунд
-		const interval = 600 // интервал обновления (мс)
+		const interval = 100 // интервал обновления (мс)
 		let direction = 1 // 1 для вправо, -1 для влево
 		let elapsed = 0
-		const maxOffset = 10 // максимальное смещение в пикселях
-		const baseSpeed = 5 // максимальная скорость (пикселей за шаг) в центре
+		const maxOffset = 15 // максимальное смещение в пикселях
+		const baseSpeed = 4 // максимальная скорость (пикселей за шаг) в центре
 		const minSpeed = 0.2 // минимальная скорость на краях
 
 		const hintInterval = setInterval(() => {
@@ -276,7 +276,7 @@ export default function SliderPage() {
 			{/* Блок с выйгрывшими */}
 			<RecentWins
 				wins={constants.recentWins}
-				intervalMs={2000}
+				intervalMs={3000}
 			/>
 		</main>
 	)
