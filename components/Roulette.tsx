@@ -291,7 +291,7 @@ export function Roulette({ onWin }: RouletteProps) {
 				const showBlock = displayGold > 0
 				return showBlock ? (
 					<div className="text-guarantee text-gold-light">
-						Голды выиграно за тариф: <span className="font-bold">{displayGold}</span>
+						Голды выиграно: <span className="font-bold">{displayGold}</span>
 					</div>
 				) : null
 			})()}
