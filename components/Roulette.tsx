@@ -138,7 +138,7 @@ export function Roulette({ onWin }: RouletteProps) {
 					winModalShown = true
 					setShowWinModal(true)
 				}
-			}, 8500)
+			}, 9000)
 		}
 
 		const animate = () => {
