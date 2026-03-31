@@ -1,5 +1,7 @@
 import { Button } from '@/components/ui/Button'
+import { useAudio } from '@/lib/hooks/useAudio'
 import Image from 'next/image'
+import { useEffect } from 'react'
 
 interface WinModalProps {
 	winAmount: number
@@ -8,9 +10,33 @@ interface WinModalProps {
 }
 
 export function WinModal({ winAmount, onClose, isOpen }: WinModalProps) {
+	const isBigWin = winAmount >= 10000
+
+	// Аудио для выигрыша
+	const { play: playWinSound } = useAudio({
+		src: '/win.mp3',
+		volume: 0.5
+	})
+
+	// Аудио для проигрыша
+	const { play: playLoseSound } = useAudio({
+		src: '/proval.mp3',
+		volume: 0.5
+	})
+
+	// Воспроизведение звука при открытии модального окна
+	useEffect(() => {
+		if (isOpen) {
+			if (isBigWin) {
+				playWinSound()
+			} else {
+				playLoseSound()
+			}
+		}
+	}, [isOpen, isBigWin, playWinSound, playLoseSound])
+
 	if (!isOpen) return null
 
-	const isBigWin = winAmount >= 10000
 	const title = isBigWin ? 'Вы выиграли!' : 'почти повезло!'
 	const amountClass = isBigWin ? 'text-big-gold' : 'text-win-amount-low'
 	const titleId = 'win-modal-title'

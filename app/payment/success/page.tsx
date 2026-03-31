@@ -1,5 +1,8 @@
 'use client'
 
+import { recordPurchase, recordUser } from '@/lib/dailyStats'
+import { getSpinsByTariff, usePurchasesStore } from '@/lib/store/purchases'
+import { useUserStore } from '@/lib/store/user'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
@@ -8,8 +11,13 @@ function PaymentSuccessContent() {
 	const router = useRouter()
 	const searchParams = useSearchParams()
 	const transactionId = searchParams.get('transaction')
+	const tariff = searchParams.get('tariff') || 'Премиум' // По умолчанию для тестирования
+	const priceParam = searchParams.get('price')
+	const price = priceParam ? parseFloat(priceParam) : 0
 	const [nickname, setNickname] = useState('')
 	const [showConfirmModal, setShowConfirmModal] = useState(false)
+	const addPurchase = usePurchasesStore(state => state.addPurchase)
+	const setNicknameInStore = useUserStore(state => state.setNickname)
 
 	const handleContinue = () => {
 		if (!nickname.trim()) {
@@ -20,7 +28,26 @@ function PaymentSuccessContent() {
 	}
 
 	const handleConfirm = () => {
-		// Здесь можно отправить ник на бэкенд для зачисления награды
+		const trimmedNickname = nickname.trim()
+		// Сохраняем ник в user store
+		setNicknameInStore(trimmedNickname)
+
+		// Добавляем покупку в store
+		const spins = getSpinsByTariff(tariff)
+		addPurchase({
+			nickname: trimmedNickname,
+			tariff,
+			spins,
+			transactionId: transactionId || undefined
+		})
+
+		// Регистрируем покупку и пользователя в дневной статистике
+		if (price > 0) {
+			recordPurchase(price)
+		}
+		recordUser(trimmedNickname)
+
+		// Перенаправляем на главную страницу
 		router.push('/')
 	}
 

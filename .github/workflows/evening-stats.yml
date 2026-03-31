@@ -1,0 +1,23 @@
+name: Evening Statistics Cron
+
+on:
+  schedule:
+    # Запускать каждый день в 20:00 UTC (23:00 МСК)
+    - cron: '0 20 * * *'
+  workflow_dispatch: # Позволяет запускать вручную
+
+jobs:
+  send-stats:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send evening statistics
+        run: |
+          # URL вашего приложения (замените на актуальный)
+          APP_URL="${{ secrets.APP_URL }}"
+          if [ -z "$APP_URL" ]; then
+            echo "Ошибка: APP_URL не установлен. Добавьте секрет APP_URL в настройках репозитория."
+            exit 1
+          fi
+          # Вызов эндпоинта статистики
+          curl -X GET "$APP_URL/api/statistics/evening"
+        shell: bash

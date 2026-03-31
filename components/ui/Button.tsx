@@ -1,5 +1,6 @@
 'use client'
 
+import { useButtonSoundSimple } from '@/lib/hooks/useButtonSound'
 import { cn } from '@/lib/utils'
 import { ButtonHTMLAttributes, forwardRef } from 'react'
 
@@ -55,7 +56,20 @@ const GOLD_OUTLINE_BUTTON_STYLES = {
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-	({ className, variant = 'primary', size = 'md', children, type = 'button', ...props }, ref) => {
+	({ className, variant = 'primary', size = 'md', children, type = 'button', onClick, disabled, ...props }, ref) => {
+		const playButtonSound = useButtonSoundSimple()
+
+		const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+			// Воспроизводим звук только если кнопка не disabled
+			if (!disabled) {
+				playButtonSound()
+			}
+			// Вызываем оригинальный onClick, если он передан
+			if (onClick) {
+				onClick(event)
+			}
+		}
+
 		return (
 			<button
 				ref={ref}
@@ -91,6 +105,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 							? GOLD_OUTLINE_BUTTON_STYLES
 							: undefined
 				}
+				onClick={handleClick}
+				disabled={disabled}
 				{...props}
 			>
 				{variant === 'gold' ? (

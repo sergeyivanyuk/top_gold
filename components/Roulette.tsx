@@ -4,10 +4,13 @@ import { Button } from '@/components/ui/Button'
 import { getRandomSegment, ROULETTE_CONFIG, ROULETTE_SEGMENTS } from '@/config/roulette'
 import constants from '@/data/constants.json'
 import { useAudio } from '@/lib/hooks/useAudio'
+import { usePurchasesStore } from '@/lib/store/purchases'
 import { useRouletteStore } from '@/lib/store/roulette'
+import { useUserStore } from '@/lib/store/user'
 import { cn } from '@/lib/utils'
 import { telegramService } from '@/services/telegram/telegram.service'
 import { RotateCw } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { ExtraSpinModal } from './roulette/ExtraSpinModal'
 import { Wheel } from './roulette/Wheel'
@@ -18,15 +21,20 @@ interface RouletteProps {
 }
 
 export function Roulette({ onWin }: RouletteProps) {
+	const router = useRouter()
 	const [rotation, setRotation] = useState(0)
 	const [isSpinning, setIsSpinning] = useState(false)
 	const [selectedSegment, setSelectedSegment] = useState<string | null>(null)
 	const [showWinModal, setShowWinModal] = useState(false)
 	const [winAmount, setWinAmount] = useState(0)
 	const [showExtraSpinModal, setShowExtraSpinModal] = useState(false)
+	const [showTariffCompletedModal, setShowTariffCompletedModal] = useState(false)
 
 	const { addWinner, incrementSpins, addGold, addTariffGold, resetTariffGold, tariffGold, remainingSpins, totalSpins, decrementRemainingSpins } =
 		useRouletteStore()
+
+	const { nickname } = useUserStore()
+	const consumeSpin = usePurchasesStore(state => state.consumeSpin)
 
 	// Аудио для вращения колеса
 	const {
@@ -34,15 +42,9 @@ export function Roulette({ onWin }: RouletteProps) {
 		pause: pauseWheelSound,
 		audioRef: wheelAudioRef
 	} = useAudio({
-		src: '/wheel.mp3',
+		src: '/wheel2.mp3',
 		volume: 0.4,
 		loop: true
-	})
-
-	// Аудио для нажатия кнопки
-	const { play: playButtonSound, audioRef: buttonAudioRef } = useAudio({
-		src: '/button.mp3',
-		volume: 0.4
 	})
 
 	// Подкрутка (для админа) - значение берётся из конфигурационного файла data/constants.json
@@ -60,11 +62,6 @@ export function Roulette({ onWin }: RouletteProps) {
 
 		// Дополнительная корректировка угла для совпадения визуального и вычисленного сегмента
 		const ANGLE_CORRECTION = -11 // градусов, подобрано эмпирически
-
-		console.log('totalSpins:', totalSpins)
-
-		// Воспроизведение звука кнопки
-		playButtonSound()
 
 		// Воспроизведение звука вращения
 		playWheelSound()
@@ -84,8 +81,6 @@ export function Roulette({ onWin }: RouletteProps) {
 			winningSegment = getRandomSegment(overrideSegment || undefined)
 		}
 
-		console.log('Выбран сегмент (вероятностно):', winningSegment.id, 'gold:', winningSegment.gold)
-
 		// Вычисляем угол для этого сегмента
 		const segmentIndex = ROULETTE_SEGMENTS.findIndex(s => s.id === winningSegment.id)
 
@@ -96,7 +91,6 @@ export function Roulette({ onWin }: RouletteProps) {
 		// Дополнительная корректировка ANGLE_CORRECTION для совпадения визуального и вычисленного сегмента
 		// Фактический центр сегмента с учётом смещения:
 		const segmentCenterAngle = segmentIndex * segmentAngle + segmentAngle + ANGLE_CORRECTION + segmentAngle / 2
-		console.log('segmentIndex:', segmentIndex, 'segmentCenterAngle:', segmentCenterAngle)
 
 		// Добавляем несколько полных оборотов + небольшое случайное смещение внутри сегмента
 		let spins = ROULETTE_CONFIG.MIN_SPINS
@@ -131,13 +125,21 @@ export function Roulette({ onWin }: RouletteProps) {
 		// Флаг, чтобы не показывать модальное окно дважды
 		let winModalShown = false
 
-		// Показываем выигрыш через 8.5 секунд (до остановки рулетки)
-		const winTimer = setTimeout(() => {
-			if (!winModalShown) {
-				winModalShown = true
-				setShowWinModal(true)
-			}
-		}, 8500)
+		// Определяем, является ли выигрыш золотым (10000 голды)
+		const isGoldWin = winningSegment.gold === 10000
+
+		// Таймер для показа модального окна
+		let winTimer: NodeJS.Timeout | null = null
+
+		// Показываем выигрыш через 8.5 секунд (до остановки рулетки) только для золотого выигрыша
+		if (isGoldWin) {
+			winTimer = setTimeout(() => {
+				if (!winModalShown) {
+					winModalShown = true
+					setShowWinModal(true)
+				}
+			}, 8500)
+		}
 
 		const animate = () => {
 			const elapsed = Date.now() - startTime
@@ -163,13 +165,6 @@ export function Roulette({ onWin }: RouletteProps) {
 				const winningIndex = Math.floor(adjustedAngle / segmentAngle)
 				const actualWinningSegment = ROULETTE_SEGMENTS[winningIndex]
 
-				console.log('Финальный угол вращения:', finalRotation)
-				console.log('Угол под стрелкой:', pointerAngle)
-				console.log('Скорректированный угол:', adjustedAngle)
-				console.log('Индекс сегмента:', winningIndex)
-				console.log('Фактический сегмент:', actualWinningSegment.id, 'gold:', actualWinningSegment.gold)
-				console.log('Ожидался сегмент:', winningSegment.id, 'gold:', winningSegment.gold)
-
 				setIsSpinning(false)
 				setSelectedSegment(actualWinningSegment.id)
 				setWinAmount(actualWinningSegment.gold)
@@ -182,44 +177,59 @@ export function Roulette({ onWin }: RouletteProps) {
 
 				// Обновляем статистику
 				incrementSpins()
-				addGold(actualWinningSegment.gold)
-				addTariffGold(actualWinningSegment.gold)
+				// Первые 10000 голды (гарантированный выигрыш) не учитываются в статистике
+				const isFirstGoldWin = totalSpins === 0 && actualWinningSegment.id === 'gold'
+				if (!isFirstGoldWin) {
+					addGold(actualWinningSegment.gold)
+					addTariffGold(actualWinningSegment.gold)
+				}
 
 				// Добавляем победителя
+				const winnerGold = isFirstGoldWin ? 0 : actualWinningSegment.gold
 				const winner = {
 					id: Date.now().toString(),
-					username: `Player${Math.floor(Math.random() * 9000) + 1000}`,
-					gold: actualWinningSegment.gold,
+					username: nickname || `Player${Math.floor(Math.random() * 9000) + 1000}`,
+					gold: winnerGold,
 					timestamp: Date.now(),
 					segment: actualWinningSegment.label
 				}
 				addWinner(winner)
 
 				// Декрементируем оставшиеся вращения, если они есть
+				let newRemaining = remainingSpins
 				if (remainingSpins > 0) {
 					decrementRemainingSpins()
+					// Уменьшаем количество вращений в purchases store
+					if (nickname) {
+						consumeSpin(nickname)
+					}
 					// Проверяем, закончились ли вращения
-					const newRemaining = useRouletteStore.getState().remainingSpins
+					newRemaining = useRouletteStore.getState().remainingSpins
 					if (newRemaining === 0) {
 						// Отправляем уведомление о выигрыше за весь тариф
 						const totalTariffGold = useRouletteStore.getState().tariffGold
 						telegramService.sendWinNotification(winner.username, totalTariffGold).catch((err: any) => {
 							console.error('Ошибка отправки уведомления в Telegram:', err)
 						})
-						// Сбрасываем накопленное золото тарифа
-						resetTariffGold()
+						// Показываем модальное окно с итогами тарифа
+						setShowTariffCompletedModal(true)
+						// НЕ сбрасываем накопленное золото тарифа, чтобы пользователь видел итоговую сумму
+						// resetTariffGold()
 					}
 				}
 
-				onWin?.(actualWinningSegment.gold, actualWinningSegment.label)
+				onWin?.(winnerGold, actualWinningSegment.label)
 
 				// Подкрутка остаётся (не сбрасываем)
 
-				// Очищаем таймер
-				clearTimeout(winTimer)
+				// Очищаем таймер (если он был установлен)
+				if (winTimer) {
+					clearTimeout(winTimer)
+				}
 
-				// Показываем окно выигрыша, если ещё не показано
-				if (!winModalShown) {
+				// Показываем окно выигрыша, если ещё не показано и это не последнее вращение тарифа
+				const isLastSpinOfTariff = remainingSpins > 0 && newRemaining === 0
+				if (!winModalShown && !isLastSpinOfTariff) {
 					winModalShown = true
 					setShowWinModal(true)
 				}
@@ -232,10 +242,20 @@ export function Roulette({ onWin }: RouletteProps) {
 		setShowWinModal(false)
 		// После закрытия окна выигрыша показываем бонусное окно только при первом вращении
 		const { remainingSpins, totalSpins } = useRouletteStore.getState()
-		// Показываем бонусное окно только если это первое вращение, осталось 0 вращений и колесо не вращается
-		if (remainingSpins === 0 && totalSpins === 1 && !isSpinning) {
+		// Показываем бонусное окно только если это первое вращение и осталось 0 вращений
+		if (remainingSpins === 0 && totalSpins === 1) {
 			setShowExtraSpinModal(true)
 		}
+	}
+
+	const handleTariffCompletedClose = () => {
+		setShowTariffCompletedModal(false)
+
+		// Сбрасываем накопленное золото тарифа перед переходом к выбору нового тарифа
+		resetTariffGold()
+
+		// Перенаправляем на страницу выбора тарифа
+		router.push('/slider')
 	}
 
 	return (
@@ -265,6 +285,16 @@ export function Roulette({ onWin }: RouletteProps) {
 				)}
 			</Button>
 			<div className="text-guarantee">Гарантированная награда при каждом вращении</div>
+			{(() => {
+				// Вычисляем голды за тариф (первые 10000 голды не учитываются)
+				const displayGold = tariffGold
+				const showBlock = displayGold > 0
+				return showBlock ? (
+					<div className="text-guarantee text-gold-light">
+						Голды выиграно за тариф: <span className="font-bold">{displayGold}</span>
+					</div>
+				) : null
+			})()}
 
 			{/* Модальное окно выигрыша */}
 			<WinModal
@@ -278,6 +308,40 @@ export function Roulette({ onWin }: RouletteProps) {
 				isOpen={showExtraSpinModal}
 				onClose={() => setShowExtraSpinModal(false)}
 			/>
+
+			{/* Модальное окно завершения тарифа */}
+			{showTariffCompletedModal && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs">
+					<div
+						className="relative w-[90%] max-w-md rounded-2xl p-6 shadow-2xl flex flex-col items-center"
+						style={{
+							background: 'radial-gradient(ellipse 100.00% 100.00% at 49.68% -0.00%, #AA7A2D 0%, #643C1C 25%, #121413 73%)',
+							borderRadius: '20px',
+							outline: '1px rgba(255, 233.54, 111.93, 0.80) solid',
+							outlineOffset: '-1px'
+						}}
+					>
+						{/* Заголовок */}
+						<h2 className="text-win-title mb-4 text-center">Тариф завершён!</h2>
+						{/* Подзаголовок */}
+						<p className="text-gray-subtext text-center mb-3">Вы использовали все вращения тарифа.</p>
+						<p className="text-gray-subtext text-center mb-6">
+							Голды выиграно: <span className="text-stat-value">{tariffGold}</span>
+						</p>
+						{/* кнопка */}
+						<div className="flex flex-col w-full">
+							<Button
+								onClick={handleTariffCompletedClose}
+								variant="gold"
+								size="xl"
+								className="w-full text-xl"
+							>
+								Продолжить
+							</Button>
+						</div>
+					</div>
+				</div>
+			)}
 		</div>
 	)
 }

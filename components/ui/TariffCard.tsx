@@ -1,5 +1,6 @@
 'use client'
 
+import { useButtonSoundSimple } from '@/lib/hooks/useButtonSound'
 import Image from 'next/image'
 
 interface TariffCardProps {
@@ -15,6 +16,13 @@ interface TariffCardProps {
 }
 
 export function TariffCard({ icon, title, mainText, bonus, chanceText, price, buttonText, onSelect, className = '' }: TariffCardProps) {
+	const playButtonSound = useButtonSoundSimple()
+
+	const handleClick = () => {
+		playButtonSound()
+		onSelect()
+	}
+
 	return (
 		<div
 			className={`rounded-2xl p-8 shadow-2xl flex flex-col items-center ${className}`}
@@ -55,7 +63,7 @@ export function TariffCard({ icon, title, mainText, bonus, chanceText, price, bu
 			<div className="flex items-center justify-between w-full">
 				<button
 					type="button"
-					onClick={onSelect}
+					onClick={handleClick}
 					className="px-12 py-3 w-full transition-colors btn-gold-slide"
 					aria-label={`Выбрать тариф ${title} за ${price}`}
 				>

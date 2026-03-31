@@ -4,10 +4,31 @@ import { Roulette } from '@/components/Roulette'
 import { GradientNumber } from '@/components/ui/GradientNumber'
 import { StatCard } from '@/components/ui/StatCard'
 import constants from '@/data/constants.json'
+import { usePurchasesStore } from '@/lib/store/purchases'
 import { useRouletteStore } from '@/lib/store/roulette'
+import { useUserStore } from '@/lib/store/user'
+import { useEffect } from 'react'
 
 export default function Home() {
-	const { remainingSpins } = useRouletteStore()
+	const { remainingSpins, setRemainingSpins } = useRouletteStore()
+	const { nickname } = useUserStore()
+	const getTotalSpins = usePurchasesStore(state => state.getTotalSpins)
+
+	// Загружаем количество вращений при изменении ника
+	useEffect(() => {
+		if (nickname) {
+			const totalSpins = getTotalSpins(nickname)
+			setRemainingSpins(totalSpins)
+		} else {
+			// Если нет ника, сбрасываем вращения (или оставляем 0)
+			setRemainingSpins(0)
+		}
+	}, [nickname, getTotalSpins, setRemainingSpins])
+
+	// Регистрируем посещение (уникальный IP)
+	useEffect(() => {
+		fetch('/api/visit').catch(() => {})
+	}, [])
 
 	return (
 		<main className=" flex flex-col">
