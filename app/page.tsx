@@ -33,15 +33,17 @@ export default function Home() {
 	return (
 		<main className=" flex flex-col">
 			{/* Статистика */}
-			<div className="px-4 py-2 flex justify-center">
-				<div className="flex items-center gap-5 px-5 py-1 bg-radial-gold rounded-card border-gold-light outline-offset-[-1px] mb-7.5">
-					<span className="text-secondary-title">Вращений осталось:</span>
-					<GradientNumber
-						value={remainingSpins}
-						size="md"
-					/>
+			{remainingSpins > 0 && (
+				<div className="px-4 py-2 flex justify-center">
+					<div className="flex items-center gap-5 px-5 py-1 bg-radial-gold rounded-card border-gold-light outline-offset-[-1px] mb-7.5">
+						<span className="text-secondary-title">Вращений осталось:</span>
+						<GradientNumber
+							value={remainingSpins}
+							size="md"
+						/>
+					</div>
 				</div>
-			</div>
+			)}
 
 			{/* Рулетка */}
 			<div className="flex-1 flex items-center justify-center">

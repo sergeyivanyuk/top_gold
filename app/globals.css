@@ -633,7 +633,7 @@ select {
 	padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 .slider-items {
-	height: 55vh;
+	height: 60vh;
 }
 
 /* Медиазапрос для экранов менее 400px */

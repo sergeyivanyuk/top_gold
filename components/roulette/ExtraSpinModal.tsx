@@ -1,8 +1,10 @@
 'use client'
 
 import { Button } from '@/components/ui/Button'
+import { useAudio } from '@/lib/hooks/useAudio'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 interface ExtraSpinModalProps {
 	onClose: () => void
@@ -11,6 +13,19 @@ interface ExtraSpinModalProps {
 
 export function ExtraSpinModal({ onClose, isOpen }: ExtraSpinModalProps) {
 	const router = useRouter()
+
+	// Аудио для бонусного окна
+	const { play: playWinSound } = useAudio({
+		src: '/win.mp3',
+		volume: 0.5
+	})
+
+	// Воспроизведение звука при открытии модального окна
+	useEffect(() => {
+		if (isOpen) {
+			playWinSound()
+		}
+	}, [isOpen, playWinSound])
 
 	if (!isOpen) return null
 

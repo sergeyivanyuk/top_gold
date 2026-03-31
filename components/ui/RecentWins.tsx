@@ -27,7 +27,7 @@ export function RecentWins({ wins, intervalMs = 3000, className = '' }: RecentWi
 	const extendedWins = [...wins, ...wins.slice(0, itemsPerView)]
 
 	// Высота одного элемента (включая gap)
-	const itemHeight = 48 // 40px высота элемента + 8px gap
+	const itemHeight = 40 // 40px высота элемента
 
 	return (
 		<div
