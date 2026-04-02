@@ -1,4 +1,3 @@
-import { telegramService } from '@/services/telegram/telegram.service'
 import { PaymentMethod, PaymentRequest, PaymentResponse, PaymentStatus } from '@/types/payment'
 import { PaymentService } from '../payment.service'
 
@@ -25,9 +24,9 @@ export class PlategaPaymentService extends PaymentService {
 			[PaymentMethod.SBP]: 2, // СБП / QR
 			[PaymentMethod.CARD]: 10, // CardRu (карты МИР)
 			[PaymentMethod.INTERNATIONAL]: 12, // Международный эквайринг
-			[PaymentMethod.YOOMONEY]: 1, // P2P (требует уточнения)
-			[PaymentMethod.QIWI]: 1, // P2P (требует уточнения)
-			[PaymentMethod.OTHER]: 1 // P2P (требует уточнения)
+			[PaymentMethod.YOOMONEY]: 1, // P2P метод (требует уточнения у Platega)
+			[PaymentMethod.QIWI]: 1, // P2P метод (требует уточнения у Platega)
+			[PaymentMethod.OTHER]: 1 // P2P метод по умолчанию
 		}
 		return mapping[method] || 1
 	}
@@ -43,7 +42,7 @@ export class PlategaPaymentService extends PaymentService {
 
 	async initPayment(request: PaymentRequest): Promise<PaymentResponse> {
 		const transactionId = this.generateTransactionId()
-		const amount = request.price
+		const amount = request.price // сумма в рублях (как в документации Platega)
 		const paymentMethod = this.mapPaymentMethod(request.paymentMethod)
 
 		const body = {
@@ -56,7 +55,7 @@ export class PlategaPaymentService extends PaymentService {
 			description: `Оплата тарифа ${request.tariff}`,
 			return: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success?transaction=${transactionId}`,
 			failedUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/failed?transaction=${transactionId}`,
-			payload: request.nickname || ''
+			payload: request.nickname || 'guest'
 		}
 
 		try {
@@ -74,16 +73,71 @@ export class PlategaPaymentService extends PaymentService {
 
 			if (!response.ok) {
 				console.error('Platega API error:', data)
+
+				// Обработка специфичных ошибок Platega API
+				if (data.statusCode === 400) {
+					if (data.message?.includes('No available requisites')) {
+						// Для P2P методов рекомендуем суммы 1001, 2002, 3001
+						const recommendedAmounts = [1001, 2002, 3001]
+						const closestAmount = recommendedAmounts.find(a => a >= amount) || recommendedAmounts[0]
+
+						const errorMessage = `Нет доступных реквизитов для суммы ${amount} RUB. Попробуйте сумму ${closestAmount} RUB или выберите другой метод оплаты.`
+						return {
+							paymentId: transactionId,
+							status: PaymentStatus.FAILED,
+							message: errorMessage
+						}
+					}
+
+					if (data.message?.includes('Transaction already exists')) {
+						// Генерируем новый transactionId и повторяем запрос
+						const newTransactionId = this.generateTransactionId()
+						body.id = newTransactionId
+
+						// В реальном приложении здесь должен быть рекурсивный вызов с лимитом попыток
+						return {
+							paymentId: newTransactionId,
+							status: PaymentStatus.FAILED,
+							message: 'Повторите попытку оплаты (конфликт идентификаторов)'
+						}
+					}
+
+					// Другие ошибки 400
+					return {
+						paymentId: transactionId,
+						status: PaymentStatus.FAILED,
+						message: `Ошибка Platega: ${data.message || 'Неизвестная ошибка'}`
+					}
+				}
+
 				throw new Error(data.message || `HTTP ${response.status}`)
 			}
 
 			// Успешный ответ
+			// Проверяем наличие redirect или paymentUrl
 			const paymentUrl = data.redirect || data.paymentUrl
+			if (!paymentUrl) {
+				// Если нет redirect, возможно Platega вернул ошибку в успешном ответе
+				console.error('Platega response missing redirect/paymentUrl. Full response:', data)
+
+				// Проверяем, есть ли сообщение об ошибке в ответе
+				const errorMessage = data.message || data.error || 'Platega не вернул ссылку для оплаты'
+				return {
+					paymentId: transactionId,
+					status: PaymentStatus.FAILED,
+					message: `Ошибка Platega: ${errorMessage}. Ответ: ${JSON.stringify(data)}`
+				}
+			}
+
 			return {
 				paymentId: transactionId,
 				status: PaymentStatus.PENDING,
 				paymentUrl,
-				message: 'Платеж инициирован'
+				message: 'Платеж инициирован',
+				additionalData: {
+					expiresIn: data.expiresIn,
+					usdtRate: data.usdtRate
+				}
 			}
 		} catch (error: any) {
 			console.error('Failed to init payment with Platega:', error)
@@ -111,12 +165,12 @@ export class PlategaPaymentService extends PaymentService {
 			const statusMap: Record<string, PaymentStatus> = {
 				PENDING: PaymentStatus.PENDING,
 				CONFIRMED: PaymentStatus.SUCCESS,
-				EXPIRED: PaymentStatus.EXPIRED,
+				EXPIRED: PaymentStatus.FAILED,
 				CANCELED: PaymentStatus.CANCELED,
 				FAILED: PaymentStatus.FAILED
 			}
 			return statusMap[status] || PaymentStatus.PENDING
-		} catch (error: any) {
+		} catch (error) {
 			console.error('Failed to check payment status:', error)
 			return PaymentStatus.FAILED
 		}
@@ -130,69 +184,11 @@ export class PlategaPaymentService extends PaymentService {
 			CONFIRMED: PaymentStatus.SUCCESS,
 			CANCELED: PaymentStatus.CANCELED,
 			FAILED: PaymentStatus.FAILED,
-			EXPIRED: PaymentStatus.EXPIRED
+			EXPIRED: PaymentStatus.FAILED
 		}
-		const paymentStatus = statusMap[status] || PaymentStatus.PENDING
-
-		// Отправляем уведомление о покупке при успешном платеже
-		if (paymentStatus === PaymentStatus.SUCCESS) {
-			const amount = data.amount || data.paymentDetails?.amount || 0
-			const orderNumber = paymentId
-			const paymentTime = new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' }) + ' МСК'
-			telegramService.sendPurchaseNotification(amount, orderNumber, paymentTime).catch((err: any) => {
-				console.error('Ошибка отправки уведомления о покупке:', err)
-			})
-		}
-
 		return {
-			status: paymentStatus,
+			status: statusMap[status] || PaymentStatus.PENDING,
 			paymentId
-		}
-	}
-
-	/**
-	 * Получение текущего курса обмена для указанного платёжного метода и валюты.
-	 * @param paymentMethod - ID платёжного метода (2, 10, 12 и т.д.)
-	 * @param currencyFrom - Исходная валюта (например, 'RUB')
-	 * @param currencyTo - Целевая валюта (например, 'USDT')
-	 * @returns Объект с курсом и временем обновления
-	 */
-	async getExchangeRate(
-		paymentMethod: number,
-		currencyFrom: string = 'RUB',
-		currencyTo: string = 'USDT'
-	): Promise<{
-		paymentMethod: number
-		currencyFrom: string
-		currencyTo: string
-		rate: number
-		updatedAt: string
-	} | null> {
-		try {
-			const url = new URL(`${PLATEGA_API_URL}/rates/payment_method_rate`)
-			url.searchParams.append('merchantId', this.merchantId)
-			url.searchParams.append('paymentMethod', paymentMethod.toString())
-			url.searchParams.append('currencyFrom', currencyFrom)
-			url.searchParams.append('currencyTo', currencyTo)
-
-			const response = await fetch(url.toString(), {
-				headers: {
-					accept: 'application/json',
-					'X-MerchantId': this.merchantId,
-					'X-Secret': this.apiKey
-				}
-			})
-
-			if (!response.ok) {
-				console.error('Failed to fetch exchange rate:', response.status)
-				return null
-			}
-
-			const data = await response.json()
-			return data
-		} catch (error) {
-			console.error('Error fetching exchange rate:', error)
-			return null
 		}
 	}
 }

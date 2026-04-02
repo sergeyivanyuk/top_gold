@@ -1,4 +1,3 @@
-import { telegramService } from '@/services/telegram/telegram.service'
 import { PaymentRequest, PaymentResponse, PaymentStatus } from '@/types/payment'
 
 /**
@@ -17,7 +16,6 @@ export abstract class PaymentService {
  */
 export class MockPaymentService extends PaymentService {
 	async initPayment(request: PaymentRequest): Promise<PaymentResponse> {
-		console.log('MockPaymentService: initPayment', request)
 		// Генерируем fake paymentId
 		const paymentId = `mock_${Date.now()}_${Math.random().toString(36).substring(2)}`
 		// Имитируем ссылку на платежный шлюз, который сразу редиректит на success
@@ -32,31 +30,16 @@ export class MockPaymentService extends PaymentService {
 	}
 
 	async checkPayment(paymentId: string): Promise<PaymentStatus> {
-		console.log('MockPaymentService: checkPayment', paymentId)
 		// Симулируем успешный платеж через 2 секунды
 		const isSuccess = paymentId.includes('mock') && Math.random() > 0.3
 		return isSuccess ? PaymentStatus.SUCCESS : PaymentStatus.FAILED
 	}
 
 	async handleWebhook(data: any): Promise<{ status: PaymentStatus; paymentId: string }> {
-		console.log('MockPaymentService: handleWebhook', data)
 		// В тестовом режиме просто возвращаем успех
-		const status = PaymentStatus.SUCCESS
-		const paymentId = data.paymentId || 'unknown'
-
-		// Отправляем уведомление о покупке (фиктивные данные)
-		if (status === PaymentStatus.SUCCESS) {
-			const amount = data.amount || 179
-			const orderNumber = data.orderNumber || paymentId
-			const paymentTime = data.paymentTime || new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' }) + ' МСК'
-			telegramService.sendPurchaseNotification(amount, orderNumber, paymentTime).catch((err: any) => {
-				console.error('Ошибка отправки уведомления о покупке:', err)
-			})
-		}
-
 		return {
-			status,
-			paymentId
+			status: PaymentStatus.SUCCESS,
+			paymentId: data.paymentId || 'unknown'
 		}
 	}
 }
@@ -66,11 +49,26 @@ export class MockPaymentService extends PaymentService {
  * В зависимости от конфигурации окружения возвращает mock или реальный сервис.
  */
 export async function getPaymentService(): Promise<PaymentService> {
-	const useMock = process.env.NEXT_PUBLIC_USE_MOCK_PAYMENT === 'true' || process.env.NODE_ENV === 'development'
-	if (useMock && !process.env.PLATEGA_MERCHANT_ID) {
+	const useMock = process.env.NEXT_PUBLIC_USE_MOCK_PAYMENT === 'true'
+	const hasPlategaCredentials = process.env.PLATEGA_MERCHANT_ID && process.env.PLATEGA_API_KEY
+
+	// Если явно указано использовать mock, возвращаем MockPaymentService
+	if (useMock) {
 		return new MockPaymentService()
 	}
-	// Используем Platega как основной провайдер
-	const { PlategaPaymentService } = await import('./providers/platega.service')
-	return new PlategaPaymentService()
+
+	// Если есть учетные данные Platega, используем реальный сервис
+	if (hasPlategaCredentials) {
+		const { PlategaPaymentService } = await import('./providers/platega.service')
+		return new PlategaPaymentService()
+	}
+
+	// По умолчанию в development используем mock, в production - предупреждение
+	if (process.env.NODE_ENV === 'development') {
+		console.warn('Using MockPaymentService: Platega credentials not configured')
+		return new MockPaymentService()
+	}
+
+	// В production без учетных данных - ошибка
+	throw new Error('Platega credentials are required for production. Set PLATEGA_MERCHANT_ID and PLATEGA_API_KEY environment variables.')
 }

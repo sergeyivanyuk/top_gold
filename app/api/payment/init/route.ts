@@ -1,5 +1,5 @@
 import { getPaymentService } from '@/services/payment/payment.service'
-import { PaymentMethod, PaymentRequest } from '@/types/payment'
+import { PaymentMethod, PaymentRequest, PaymentStatus } from '@/types/payment'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
@@ -7,9 +7,9 @@ export async function POST(request: NextRequest) {
 		const body = await request.json()
 		const { tariff, price, paymentMethod, nickname, email, phone, promoCode } = body
 
-		// Валидация
-		if (!tariff || !price || !paymentMethod || !nickname) {
-			return NextResponse.json({ error: 'Необходимые поля: tariff, price, paymentMethod, nickname' }, { status: 400 })
+		// Валидация обязательных полей
+		if (!tariff || !price || !paymentMethod) {
+			return NextResponse.json({ error: 'Необходимые поля: tariff, price, paymentMethod' }, { status: 400 })
 		}
 
 		// Проверка корректности метода оплаты
@@ -18,11 +18,14 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ error: `Недопустимый метод оплаты. Допустимые: ${validMethods.join(', ')}` }, { status: 400 })
 		}
 
+		// Если nickname не указан, используем значение по умолчанию
+		const finalNickname = nickname?.trim() || 'guest'
+
 		const paymentRequest: PaymentRequest = {
 			tariff,
 			price: Number(price),
 			paymentMethod: paymentMethod as PaymentMethod,
-			nickname,
+			nickname: finalNickname,
 			email,
 			phone,
 			promoCode
@@ -30,6 +33,11 @@ export async function POST(request: NextRequest) {
 
 		const paymentService = await getPaymentService()
 		const paymentResponse = await paymentService.initPayment(paymentRequest)
+
+		// Если платеж не удалось инициировать, возвращаем ошибку 400
+		if (paymentResponse.status === PaymentStatus.FAILED || paymentResponse.status === PaymentStatus.CANCELED) {
+			return NextResponse.json({ error: paymentResponse.message || 'Не удалось инициировать платеж' }, { status: 400 })
+		}
 
 		return NextResponse.json(paymentResponse, { status: 200 })
 	} catch (error) {
