@@ -366,16 +366,6 @@ export function Roulette({ onWin }: RouletteProps) {
 				)}
 			</Button>
 			<div className="text-guarantee">Гарантированная награда при каждом вращении</div>
-			{(() => {
-				// Вычисляем голды за тариф (первые 10000 голды не учитываются)
-				const displayGold = tariffGold
-				const showBlock = displayGold > 0
-				return showBlock ? (
-					<div className="text-guarantee text-gold-light">
-						Голды выиграно: <span className="font-bold">{displayGold}</span>
-					</div>
-				) : null
-			})()}
 
 			{/* Модальное окно выигрыша */}
 			<WinModal

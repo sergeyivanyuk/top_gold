@@ -133,11 +133,7 @@ export class PlategaPaymentService extends PaymentService {
 				paymentId: transactionId,
 				status: PaymentStatus.PENDING,
 				paymentUrl,
-				message: 'Платеж инициирован',
-				additionalData: {
-					expiresIn: data.expiresIn,
-					usdtRate: data.usdtRate
-				}
+				message: 'Платеж инициирован'
 			}
 		} catch (error: any) {
 			console.error('Failed to init payment with Platega:', error)
