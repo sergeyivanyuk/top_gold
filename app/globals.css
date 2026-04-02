@@ -760,9 +760,7 @@ select {
 		font-size: 14px !important;
 		line-height: 24px !important;
 	}
-	.slider-items {
-		height: 51vh;
-	}
+
 	.official {
 		margin-top: 30px;
 	}
@@ -773,9 +771,7 @@ select {
 	.official {
 		margin-top: 20px;
 	}
-	.slider-items {
-		height: 43vh;
-	}
+
 	.text-stat-label {
 		font-size: 12px;
 		line-height: 12px;
