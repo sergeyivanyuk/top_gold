@@ -248,7 +248,7 @@ export default function SliderPage() {
 				</div>
 
 				{/* Кнопки переключения */}
-				<div className="flex justify-center items-center mt-2.5 gap-2.5">
+				<div className="flex justify-center items-center mt-5 gap-2.5">
 					<NavButton
 						direction="prev"
 						onClick={prevSlide}

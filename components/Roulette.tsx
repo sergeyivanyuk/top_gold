@@ -25,11 +25,6 @@ export function Roulette({ onWin }: RouletteProps) {
 	const [rotation, setRotation] = useState(0)
 	const [isSpinning, setIsSpinning] = useState(false)
 	const [selectedSegment, setSelectedSegment] = useState<string | null>(null)
-	const [showWinModal, setShowWinModal] = useState(false)
-	const [winAmount, setWinAmount] = useState(0)
-	const [showExtraSpinModal, setShowExtraSpinModal] = useState(false)
-	const [showTariffCompletedModal, setShowTariffCompletedModal] = useState(false)
-	const [showBonusModal, setShowBonusModal] = useState(false)
 
 	const {
 		addWinner,
@@ -41,7 +36,15 @@ export function Roulette({ onWin }: RouletteProps) {
 		remainingSpins,
 		totalSpins,
 		decrementRemainingSpins,
-		reset
+		reset,
+		showWinModal,
+		winAmount,
+		showExtraSpinModal,
+		showTariffCompletedModal,
+		setShowWinModal,
+		setWinAmount,
+		setShowExtraSpinModal,
+		setShowTariffCompletedModal
 	} = useRouletteStore()
 
 	const { nickname, clearNickname } = useUserStore()
@@ -309,21 +312,15 @@ export function Roulette({ onWin }: RouletteProps) {
 		}
 	}
 
-	const handleTariffCompletedClose = () => {
-		setShowTariffCompletedModal(false)
-		setShowBonusModal(true)
-	}
 	const handleActivateBonus = () => {
-		// Логика активации бонуса
-		setShowBonusModal(false)
+		setShowTariffCompletedModal(false)
 		// Сбрасываем накопленное золото тарифа перед переходом к выбору нового тарифа
 		resetTariffGold()
 		// Перенаправляем на страницу выбора тарифа
 		router.push('/slider')
 	}
 	const handleSkipBonus = () => {
-		// Пропустить бонус
-		setShowBonusModal(false)
+		setShowTariffCompletedModal(false)
 		// Очищаем состояние хранилищ
 		reset()
 		clearNickname()
@@ -393,42 +390,13 @@ export function Roulette({ onWin }: RouletteProps) {
 						}}
 					>
 						{/* Заголовок */}
-						<h2 className="text-win-title mb-4 text-center">Тариф завершён!</h2>
+						<h2 className="text-win-title mb-2 text-center">Вам почти повезло!</h2>
 						{/* Подзаголовок */}
 
 						<p className="text-gray-subtext text-center mb-3">
 							Ваш текущий выйгрыш: <span className="text-stat-value">{tariffGold}</span>
 						</p>
-						<p className="text-gray-subtext text-center mb-6">Выйгрыш будет начислен в течении 24ч</p>
-						{/* кнопка */}
-						<div className="flex flex-col w-full">
-							<Button
-								onClick={handleTariffCompletedClose}
-								variant="gold"
-								size="xl"
-								className="w-full text-xl"
-							>
-								Продолжить
-							</Button>
-						</div>
-					</div>
-				</div>
-			)}
-			{/* Модальное окно с предложением бонусного вращения */}
-			{showBonusModal && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs">
-					<div
-						className="relative w-[90%] max-w-md rounded-2xl p-6 px-2 shadow-2xl flex flex-col items-center"
-						style={{
-							background: 'radial-gradient(ellipse 100.00% 100.00% at 49.68% -0.00%, #AA7A2D 0%, #643C1C 25%, #121413 73%)',
-							borderRadius: '20px',
-							outline: '1px rgba(255, 233.54, 111.93, 0.80) solid',
-							outlineOffset: '-1px'
-						}}
-					>
-						{/* Заголовок */}
-						<h2 className="text-win-title mb-2 text-center">Вам почти повезло!</h2>
-						{/* Подзаголовок */}
+						<p className="text-gray-subtext text-center mb-3">Выйгрыш будет начислен в течении 24ч</p>
 						<p className="text-gray-subtext text-center mb-3">Вам доступно бонусное вращение с повышенным шансом</p>
 						<p className="text-gray-subtext text-center mb-6">Следующее вращение может все изменить!</p>
 						{/* Две кнопки */}

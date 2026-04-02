@@ -47,7 +47,6 @@ export function WinModal({ winAmount, onClose, isOpen }: WinModalProps) {
 			{/* Overlay */}
 			<div
 				className="absolute inset-0 bg-black/60 backdrop-blur-xs"
-				onClick={onClose}
 				aria-hidden="true"
 			/>
 			{/* Modal */}

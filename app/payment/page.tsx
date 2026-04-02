@@ -393,10 +393,7 @@ function PaymentContent() {
 
 			{/* Модальное окно для ввода промокода */}
 			{showPromoModal && (
-				<div
-					className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs"
-					onClick={() => setShowPromoModal(false)}
-				>
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs">
 					<div
 						className="relative w-[90%] max-w-md rounded-2xl p-5 shadow-2xl flex flex-col items-center"
 						style={{
@@ -443,10 +440,7 @@ function PaymentContent() {
 			)}
 			{/* Модальное окно политики конфиденциальности */}
 			{showPrivacyModal && (
-				<div
-					className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs"
-					onClick={() => setShowPrivacyModal(false)}
-				>
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs">
 					<div
 						className="relative w-[90%] max-w-2xl max-h-[80vh] rounded-2xl p-6 shadow-2xl flex flex-col items-center"
 						style={{
@@ -521,10 +515,7 @@ function PaymentContent() {
 			)}
 			{/* Модальное окно пользовательского соглашения */}
 			{showTermsModal && (
-				<div
-					className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs"
-					onClick={() => setShowTermsModal(false)}
-				>
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs">
 					<div
 						className="relative w-[90%] max-w-2xl max-h-[80vh] rounded-2xl p-6 shadow-2xl flex flex-col items-center"
 						style={{

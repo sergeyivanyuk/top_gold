@@ -21,6 +21,12 @@ interface RouletteStore {
 	// Накопленное золото за текущий тариф
 	tariffGold: number
 
+	// Модальные окна
+	showWinModal: boolean
+	winAmount: number
+	showExtraSpinModal: boolean
+	showTariffCompletedModal: boolean
+
 	// Действия
 	setSpinning: (spinning: boolean) => void
 	setCurrentSegment: (segment: RouletteSegment | null) => void
@@ -31,6 +37,10 @@ interface RouletteStore {
 	resetTariffGold: () => void
 	setRemainingSpins: (count: number) => void
 	decrementRemainingSpins: () => void
+	setShowWinModal: (show: boolean) => void
+	setWinAmount: (amount: number) => void
+	setShowExtraSpinModal: (show: boolean) => void
+	setShowTariffCompletedModal: (show: boolean) => void
 	reset: () => void
 }
 
@@ -45,6 +55,10 @@ export const useRouletteStore = create<RouletteStore>()(
 			winners: [],
 			remainingSpins: 1,
 			tariffGold: 0,
+			showWinModal: false,
+			winAmount: 0,
+			showExtraSpinModal: false,
+			showTariffCompletedModal: false,
 
 			setSpinning: spinning => set({ isSpinning: spinning }),
 
@@ -79,6 +93,11 @@ export const useRouletteStore = create<RouletteStore>()(
 					remainingSpins: Math.max(0, state.remainingSpins - 1)
 				})),
 
+			setShowWinModal: show => set({ showWinModal: show }),
+			setWinAmount: amount => set({ winAmount: amount }),
+			setShowExtraSpinModal: show => set({ showExtraSpinModal: show }),
+			setShowTariffCompletedModal: show => set({ showTariffCompletedModal: show }),
+
 			reset: () =>
 				set({
 					isSpinning: false,
@@ -88,7 +107,11 @@ export const useRouletteStore = create<RouletteStore>()(
 					totalGoldWon: 0,
 					winners: [],
 					remainingSpins: 1,
-					tariffGold: 0
+					tariffGold: 0,
+					showWinModal: false,
+					winAmount: 0,
+					showExtraSpinModal: false,
+					showTariffCompletedModal: false
 				})
 		}),
 		{
