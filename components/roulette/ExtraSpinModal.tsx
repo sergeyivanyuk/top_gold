@@ -17,7 +17,7 @@ export function ExtraSpinModal({ onClose, isOpen }: ExtraSpinModalProps) {
 	// Аудио для бонусного окна
 	const { play: playWinSound } = useAudio({
 		src: '/win.mp3',
-		volume: 0.5
+		volume: 0.7
 	})
 
 	// Воспроизведение звука при открытии модального окна

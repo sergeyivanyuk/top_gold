@@ -15,13 +15,13 @@ export function WinModal({ winAmount, onClose, isOpen }: WinModalProps) {
 	// Аудио для выигрыша
 	const { play: playWinSound } = useAudio({
 		src: '/win.mp3',
-		volume: 0.5
+		volume: 0.7
 	})
 
 	// Аудио для проигрыша
 	const { play: playLoseSound } = useAudio({
 		src: '/proval.mp3',
-		volume: 0.5
+		volume: 0.7
 	})
 
 	// Воспроизведение звука при открытии модального окна

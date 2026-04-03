@@ -57,7 +57,7 @@ export function Roulette({ onWin }: RouletteProps) {
 		audioRef: wheelAudioRef
 	} = useAudio({
 		src: '/wheel2.mp3',
-		volume: 0.4,
+		volume: 0.2,
 		loop: true
 	})
 
