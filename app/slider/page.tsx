@@ -104,11 +104,16 @@ export default function SliderPage() {
 		setTouchStartX(null)
 	}
 
+	// Устанавливаем флаг, что пользователь посетил страницу тарифов
+	useEffect(() => {
+		sessionStorage.setItem('visitedSlider', 'true')
+	}, [])
+
 	// Анимация-подсказка свайпа для первого слайда (индекс 1) в течение 60 секунд
 	useEffect(() => {
 		if (!hintActive) return
 		const duration = 60000 // 60 секунд
-		const interval = 200 // интервал обновления (мс)
+		const interval = 700 // интервал обновления (мс)
 		let direction = 1 // 1 для вправо, -1 для влево
 		let elapsed = 0
 		const maxOffset = 15 // максимальное смещение в пикселях

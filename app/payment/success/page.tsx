@@ -79,7 +79,7 @@ function PaymentSuccessContent() {
 				{/* Заголовок */}
 				<h2 className="text-win-title mb-2 text-center">Оплата выполнена</h2>
 				{/* Подзаголовок */}
-				<p className="text-gray-subtext text-center mb-6">Пожалуйста, введите свой ник в игре, чтобы мы могли зачислить вам выигрыш после вращения</p>
+				<p className="text-gray-subtext text-center mb-6">Пожалуйста, введите свой ник в игре, чтобы мы могли зачислить вам выигрыш после вращений</p>
 				{/* Инпут */}
 				<input
 					type="text"
@@ -89,7 +89,7 @@ function PaymentSuccessContent() {
 					className="w-full py-3 px-4 rounded-xl bg-black/30 border border-gold-light text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold mb-6"
 				/>
 				{/* номер заказа */}
-				<p className="text-gray-subtext text-center mb-6">Ваш номер заказа 14314141221</p>
+				<p className="text-gray-subtext text-center mb-6">Ваш номер заказа {transactionId || 'неизвестен'}</p>
 				{/* Кнопка продолжить */}
 				<button
 					onClick={handleContinue}
@@ -115,7 +115,7 @@ function PaymentSuccessContent() {
 						<h2 className="text-win-title mb-2 text-center">Все верно?</h2>
 						{/* Подзаголовок */}
 						<p className="text-gray-subtext text-center mb-6">
-							Вы указали никнейм <span style={{ color: '#F9A505' }}>{nickname}</span>. Именно на этот счет будет произведено зачисление. Убедитесь,
+							Вы указали никнейм <span style={{ color: '#F9A505' }}>{nickname}</span>. Именно на этот аккаунт будет произведено зачисление. Убедитесь,
 							что ник введен правильно.
 						</p>
 						{/* Две кнопки */}

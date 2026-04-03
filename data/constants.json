@@ -14,36 +14,64 @@
 	"_comments": "Блок с игроками username - ник, gold - количество голды",
 	"recentWins": [
 		{
-			"username": "PlayerX",
+			"username": "Gvardeez_74",
 			"gold": "12 500"
 		},
 		{
-			"username": "LuckyBoy",
-			"gold": "8 300"
+			"username": "Zampolit_V",
+			"gold": "25 100"
 		},
 		{
-			"username": "GoldHunter",
-			"gold": "25 000"
-		},
-		{
-			"username": "Winner777",
+			"username": "Vityaz_217",
 			"gold": "5 600"
 		},
 		{
-			"username": "ProGamer",
-			"gold": "15 200"
+			"username": "Armor_4Radik",
+			"gold": "12 300"
 		},
 		{
-			"username": "GoldHunter",
-			"gold": "25 000"
+			"username": "PRO_Stvol_TM",
+			"gold": "4 200"
 		},
 		{
-			"username": "Winner777",
+			"username": "Lutyi_Bobr",
+			"gold": "8 500"
+		},
+		{
+			"username": "Stalnoy_Dany",
+			"gold": "18 500"
+		},
+		{
+			"username": "Koshmar_666",
 			"gold": "5 600"
 		},
 		{
-			"username": "ProGamer",
+			"username": "Rikoshet_Vlad",
 			"gold": "15 200"
+		},
+		{
+			"username": "Bozhenka_ROSTO",
+			"gold": "21 700"
+		},
+		{
+			"username": "SOTYI_408",
+			"gold": "5 600"
+		},
+		{
+			"username": "Garan_Val",
+			"gold": "3 600"
+		},
+		{
+			"username": "Tankist_ROSTO",
+			"gold": "16 200"
+		},
+		{
+			"username": "Prizrak_04",
+			"gold": "6 500"
+		},
+		{
+			"username": "Danii_Master",
+			"gold": "11 300"
 		}
 	],
 	"roulette": {
@@ -53,17 +81,17 @@
 		"nicknameOverrides": {},
 		"_comment3": "Переопределение вероятностей для конкретных ников. Ключ - ник пользователя, значение - объект с вероятностями для каждого сегмента (в процентах). Сумма должна быть 100%.",
 		"nicknameProbabilityOverrides": {
-			"VipPlayer.123": {
+			"228PODKRUT": {
 				"gold": 10,
-				"black1": 5,
-				"black2": 5,
-				"black3": 5,
+				"black1": 13,
+				"black2": 13,
+				"black3": 12,
 				"blue1": 2,
 				"blue2": 2,
 				"blue3": 6,
-				"red1": 25,
-				"red2": 25,
-				"red3": 15
+				"red1": 14,
+				"red2": 14,
+				"red3": 14
 			}
 		}
 	},

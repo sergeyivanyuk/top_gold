@@ -53,8 +53,8 @@ export class PlategaPaymentService extends PaymentService {
 				currency: 'RUB'
 			},
 			description: `Оплата тарифа ${request.tariff}`,
-			return: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success?transaction=${transactionId}`,
-			failedUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/failed?transaction=${transactionId}`,
+			return: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success?transaction=${transactionId}&tariff=${encodeURIComponent(request.tariff)}&price=${request.price}`,
+			failedUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/failed?transaction=${transactionId}&tariff=${encodeURIComponent(request.tariff)}&price=${request.price}`,
 			payload: request.nickname || 'guest'
 		}
 

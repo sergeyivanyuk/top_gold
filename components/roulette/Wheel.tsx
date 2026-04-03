@@ -10,7 +10,7 @@ interface WheelProps {
 }
 export function Wheel({ rotation, isSpinning, segmentAngle }: WheelProps) {
 	return (
-		<div className="relative">
+		<div className="relative mt-5">
 			{/* Указатель */}
 			<div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
 				<div className="relative w-18 h-18">
@@ -50,7 +50,7 @@ export function Wheel({ rotation, isSpinning, segmentAngle }: WheelProps) {
 				</div>
 			</div>
 			{/* Снизу */}
-			<div className="absolute bottom-2 left-1/2 -translate-x-1/2 translate-y-1/3 z-10">
+			<div className="absolute bottom-1 left-1/2 -translate-x-1/2 translate-y-1/3 z-10">
 				<div className="relative w-7 h-9">
 					<Image
 						src="/arrow-left.png"
@@ -63,7 +63,7 @@ export function Wheel({ rotation, isSpinning, segmentAngle }: WheelProps) {
 			</div>
 			{/* Колесо */}
 			<div
-				className="relative w-73 h-73 md:w-80 md:h-80 rounded-full shadow-2xl overflow-hidden"
+				className="relative w-75 h-75 sm:w-80 sm:h-80 rounded-full shadow-2xl overflow-hidden"
 				style={{ transform: `rotate(${rotation}deg)` }}
 			>
 				<div className={cn('absolute inset-0', !isSpinning && 'animate-sway')}>
@@ -119,7 +119,7 @@ export function Wheel({ rotation, isSpinning, segmentAngle }: WheelProps) {
 										whiteSpace: 'nowrap',
 										wordWrap: 'break-word'
 									}}
-									className="uppercase font-extrabold text-[22px] absolute top-0 left-0 translate-x-[1px] translate-y-[1px]"
+									className="uppercase font-extrabold text-[22px] absolute -top-2 left-0 translate-x-[1px] translate-y-[1px]"
 								>
 									{segment.label}
 								</span>
@@ -137,7 +137,7 @@ export function Wheel({ rotation, isSpinning, segmentAngle }: WheelProps) {
 										whiteSpace: 'nowrap',
 										wordWrap: 'break-word'
 									}}
-									className="uppercase font-extrabold text-[22px] relative"
+									className="uppercase font-extrabold text-[22px] relative -top-2"
 								>
 									{segment.label}
 								</span>

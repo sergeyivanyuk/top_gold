@@ -1,4 +1,5 @@
 import { getPaymentService } from '@/services/payment/payment.service'
+import { PaymentStatus } from '@/types/payment'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
@@ -24,8 +25,12 @@ export async function POST(request: NextRequest) {
 		const paymentService = await getPaymentService()
 		const result = await paymentService.handleWebhook(body)
 
-		// Обновляем статус платежа в БД, начисляем вращения и т.д.
-		// TODO: реализовать логику обновления состояния платежа и начисления наград
+		// Логируем успешный платеж
+		if (result.status === PaymentStatus.SUCCESS) {
+			console.log(`✅ Успешный платеж ${result.paymentId}`)
+			// Здесь можно было бы добавить покупку в БД, но у нас только клиентское хранилище
+			// В реальном приложении нужно сохранять в базу данных
+		}
 
 		return NextResponse.json({ success: true, ...result }, { status: 200 })
 	} catch (error) {

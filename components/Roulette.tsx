@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 import { telegramService } from '@/services/telegram/telegram.service'
 import { RotateCw } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ExtraSpinModal } from './roulette/ExtraSpinModal'
 import { Wheel } from './roulette/Wheel'
 import { WinModal } from './roulette/WinModal'
@@ -61,6 +61,18 @@ export function Roulette({ onWin }: RouletteProps) {
 		loop: true
 	})
 
+	// Аудио для выигрыша (более 20000 голды)
+	const { play: playWinSound, audioRef: winAudioRef } = useAudio({
+		src: '/win.mp3',
+		volume: 0.5
+	})
+
+	// Аудио для проигрыша (менее 20000 голды)
+	const { play: playProvalSound, audioRef: provalAudioRef } = useAudio({
+		src: '/proval.mp3',
+		volume: 0.5
+	})
+
 	// Подкрутка (для админа) - значение берётся из конфигурационного файла data/constants.json
 	// Возможные значения: 'gold', 'black1', 'black2', 'black3', 'blue1', 'blue2', 'blue3', 'red1', 'red2', 'red3'
 	// null - отключить подкрутку
@@ -75,6 +87,40 @@ export function Roulette({ onWin }: RouletteProps) {
 	}
 
 	const segmentAngle = 360 / ROULETTE_SEGMENTS.length
+
+	// Эффект для сброса состояния при возврате со страницы тарифов после первой прокрутки
+	useEffect(() => {
+		if (typeof window === 'undefined') return
+		const visitedSlider = sessionStorage.getItem('visitedSlider')
+		if (visitedSlider === 'true') {
+			// Удаляем флаг сразу, чтобы не влиял на будущие посещения
+			sessionStorage.removeItem('visitedSlider')
+			// Если это первая прокрутка и вращения закончились, сбрасываем состояние
+			if (totalSpins === 1 && remainingSpins === 0) {
+				// Сбрасываем состояние хранилищ
+				reset()
+				clearNickname()
+				clearPurchases()
+				// Очищаем localStorage
+				localStorage.clear()
+				// Очищаем куки
+				document.cookie.split(';').forEach(c => {
+					document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/')
+				})
+			}
+		}
+	}, [totalSpins, remainingSpins, reset, clearNickname, clearPurchases])
+
+	// Эффект для воспроизведения звука при открытии модального окна завершения тарифа
+	useEffect(() => {
+		if (showTariffCompletedModal) {
+			if (tariffGold >= 20000) {
+				playWinSound()
+			} else {
+				playProvalSound()
+			}
+		}
+	}, [showTariffCompletedModal, tariffGold, playWinSound, playProvalSound])
 
 	const spinWheel = () => {
 		if (isSpinning) return
@@ -256,6 +302,13 @@ export function Roulette({ onWin }: RouletteProps) {
 				}
 				addWinner(winner)
 
+				// Отправляем уведомление о новом пользователе при первой прокрутке
+				if (wasFirstSpin) {
+					telegramService.sendNewUserNotification(winner.username).catch((err: any) => {
+						console.error('Ошибка отправки уведомления о новом пользователе в Telegram:', err)
+					})
+				}
+
 				// Декрементируем оставшиеся вращения, если они есть
 				let newRemaining = remainingSpins
 				if (remainingSpins > 0) {
@@ -404,7 +457,7 @@ export function Roulette({ onWin }: RouletteProps) {
 						<p className="text-gray-subtext text-center mb-3">
 							Ваш текущий выйгрыш: <span className="text-stat-value">{tariffGold}</span>
 						</p>
-						<p className="text-gray-subtext text-center mb-3">Выйгрыш будет начислен в течении 24ч</p>
+						<p className="text-gray-subtext text-center mb-3">Выйгрыш будет начислен в течении 24ч на ваш аккаунт</p>
 						<p className="text-gray-subtext text-center mb-3">Вам доступно бонусное вращение с повышенным шансом</p>
 						{tariffGold < 20000 && <p className="text-gray-subtext text-center mb-6">Следующее вращение может все изменить!</p>}
 						{/* Две кнопки */}

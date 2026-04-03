@@ -106,6 +106,16 @@ export class TelegramService {
 		const text = `----ВЕЧЕРНЯЯ СТАТИСТИКА----\n\nПользователей сегодня: ${usersToday}\nПокупок сегодня: ${purchasesToday}\nСумма за сегодня: ${totalAmountToday} ₽`
 		return this.sendMessage({ chatId, text })
 	}
+
+	/**
+	 * Отправляет уведомление о новом пользователе.
+	 * @param username Ник пользователя (опционально)
+	 * @param chatId Опциональный chat ID
+	 */
+	async sendNewUserNotification(username?: string, chatId?: string): Promise<boolean> {
+		const text = 'НОВЫЙ ПОЛЬЗОВАТЕЛЬ ЗАРЕГИСТРИРОВАН!'
+		return this.sendMessage({ chatId, text })
+	}
 }
 
 // Экспортируем синглтон для удобства

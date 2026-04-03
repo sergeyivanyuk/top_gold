@@ -79,10 +79,10 @@ export const usePurchasesStore = create<PurchasesStore>()(
 // Вспомогательная функция для получения количества вращений по тарифу
 export const getSpinsByTariff = (tariff: string): number => {
 	const tariffMap: Record<string, number> = {
-		Стандарт: 1,
+		Стандарт: 1, // 1 основное + 0 бонусных
 		Выгодный: 4, // 3 основных + 1 бонусное
 		Премиум: 7, // 5 основных + 2 бонусных
-		Люкс: 13 // 10 основных + 3 бонусных
+		Люкс: 11 // 8 основных + 3 бонусных (исправлено с 13 на 11)
 	}
 	return tariffMap[tariff] || 0
 }

@@ -59,7 +59,9 @@ function PaymentContent() {
 	const handlePromoClick = () => {
 		setShowPromoModal(true)
 	}
-
+	const handleSupportClick = () => {
+		window.open('https://t.me/Andrey_manager_777', '_blank')
+	}
 	const handlePayment = async () => {
 		setIsLoading(true)
 		setPaymentError(null)
@@ -104,7 +106,10 @@ function PaymentContent() {
 				>
 					<ChevronLeft className="text-[#fff] font-bold w-8 h-8" />
 				</button>
-				<button className="absolute top-0 right-0 btn-nav">
+				<button
+					onClick={handleSupportClick}
+					className="absolute top-0 right-0 btn-nav"
+				>
 					<Image
 						src="/support.png"
 						alt="Поддержка"
@@ -317,7 +322,7 @@ function PaymentContent() {
 						<h2 className="text-win-title mb-2 text-center">Оплата выполнена</h2>
 						{/* Подзаголовок */}
 						<p className="text-gray-subtext text-center mb-6">
-							Пожалуйста, введите свой ник в игре, чтобы мы могли зачислить вам выигрыш после вращения
+							Пожалуйста, введите свой ник в игре, чтобы мы могли зачислить вам выигрыш после вращений
 						</p>
 						{/* Инпут */}
 						<input
