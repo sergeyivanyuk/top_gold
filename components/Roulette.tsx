@@ -64,7 +64,15 @@ export function Roulette({ onWin }: RouletteProps) {
 	// Подкрутка (для админа) - значение берётся из конфигурационного файла data/constants.json
 	// Возможные значения: 'gold', 'black1', 'black2', 'black3', 'blue1', 'blue2', 'blue3', 'red1', 'red2', 'red3'
 	// null - отключить подкрутку
-	const [overrideSegment, setOverrideSegment] = useState<string | null>(constants.roulette.overrideSegmentId)
+	const getOverrideSegment = () => {
+		if (nickname && constants.roulette.nicknameOverrides) {
+			const overrides = constants.roulette.nicknameOverrides as Record<string, string>
+			if (overrides[nickname]) {
+				return overrides[nickname]
+			}
+		}
+		return constants.roulette.overrideSegmentId
+	}
 
 	const segmentAngle = 360 / ROULETTE_SEGMENTS.length
 
@@ -90,7 +98,7 @@ export function Roulette({ onWin }: RouletteProps) {
 			const goldSegment = ROULETTE_SEGMENTS.find(s => s.id === 'gold')
 			if (!goldSegment) {
 				console.error('Золотой сегмент не найден в ROULETTE_SEGMENTS')
-				winningSegment = getRandomSegment(overrideSegment || undefined)
+				winningSegment = getRandomSegment(getOverrideSegment() || undefined, nickname || undefined)
 			} else {
 				winningSegment = goldSegment
 			}
@@ -104,10 +112,10 @@ export function Roulette({ onWin }: RouletteProps) {
 					winningSegment = forcedBlueSegment
 				} else {
 					// fallback
-					winningSegment = getRandomSegment(overrideSegment || undefined)
+					winningSegment = getRandomSegment(getOverrideSegment() || undefined, nickname || undefined)
 				}
 			} else {
-				winningSegment = getRandomSegment(overrideSegment || undefined)
+				winningSegment = getRandomSegment(getOverrideSegment() || undefined, nickname || undefined)
 			}
 		}
 
@@ -134,7 +142,7 @@ export function Roulette({ onWin }: RouletteProps) {
 			randomOffset = segmentAngle * 0.499
 			// Фиксируем количество оборотов для предсказуемости
 			spins = ROULETTE_CONFIG.MIN_SPINS
-		} else if (overrideSegment) {
+		} else if (getOverrideSegment()) {
 			// Если включена подкрутка, убираем случайности для точного попадания
 			spins = ROULETTE_CONFIG.MIN_SPINS // фиксированное количество оборотов
 			randomOffset = 0 // без смещения

@@ -382,7 +382,9 @@
 		font-size: 12px;
 		font-weight: 500;
 	}
-
+	.text-radio-label-disabled {
+		font-size: 10px;
+	}
 	/* Текст для слайдов */
 	.text-slide-title {
 		background-image: linear-gradient(to bottom, #f3dfa2 0%, #c57f34 100%);

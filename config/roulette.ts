@@ -53,21 +53,37 @@ export const ROULETTE_CONFIG = {
 } as const
 
 // Функция для получения сегмента с учётом вероятностей (подкрутка)
-export function getRandomSegment(overrideProbability?: string): RouletteSegment {
+export function getRandomSegment(overrideProbability?: string, nickname?: string): RouletteSegment {
 	// Если указана подкрутка - форсируем определённый сегмент
 	if (overrideProbability) {
 		const forcedSegment = ROULETTE_SEGMENTS.find(s => s.id === overrideProbability)
 		if (forcedSegment) return forcedSegment
 	}
 
+	// Определяем вероятности для сегментов
+	let segmentsWithProbabilities = ROULETTE_SEGMENTS
+
+	// Если указан ник и есть переопределение вероятностей для этого ника
+	if (nickname && constants.roulette.nicknameProbabilityOverrides) {
+		const overridesMap = constants.roulette.nicknameProbabilityOverrides as Record<string, Record<string, number>>
+		const overrides = overridesMap[nickname]
+		if (overrides) {
+			// Создаем копию сегментов с переопределенными вероятностями
+			segmentsWithProbabilities = ROULETTE_SEGMENTS.map(segment => ({
+				...segment,
+				probability: overrides[segment.id] !== undefined ? overrides[segment.id] : segment.probability
+			}))
+		}
+	}
+
 	// Используем вероятности из сегментов
-	const totalWeight = ROULETTE_SEGMENTS.reduce((sum, s) => sum + s.probability, 0)
+	const totalWeight = segmentsWithProbabilities.reduce((sum, s) => sum + s.probability, 0)
 	let random = Math.random() * totalWeight
 
-	for (const segment of ROULETTE_SEGMENTS) {
+	for (const segment of segmentsWithProbabilities) {
 		random -= segment.probability
 		if (random <= 0) return segment
 	}
 
-	return ROULETTE_SEGMENTS[0]
+	return segmentsWithProbabilities[0]
 }
