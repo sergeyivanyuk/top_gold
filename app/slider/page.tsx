@@ -25,7 +25,7 @@ export default function SliderPage() {
 			mainText: '1 Вращение',
 			bonus: 'ШАНСЫ ЕСТЬ',
 			chanceText: null,
-			price: '179₽',
+			price: constants.price[1],
 			buttonText: 'Выбрать'
 		},
 		{
@@ -34,7 +34,7 @@ export default function SliderPage() {
 			mainText: '3 Вращения',
 			bonus: '+1 Бонусное вращение',
 			chanceText: 'Отличный шанс!',
-			price: '537₽',
+			price: constants.price[2],
 			buttonText: 'Выбрать'
 		},
 		{
@@ -43,7 +43,7 @@ export default function SliderPage() {
 			mainText: '5 Вращений',
 			bonus: '+2 Бонусных вращения',
 			chanceText: 'Идеальный шанс!',
-			price: '825₽',
+			price: constants.price[3],
 			buttonText: 'выбрать'
 		},
 		{
@@ -52,7 +52,7 @@ export default function SliderPage() {
 			mainText: '8 Вращений',
 			bonus: '+3 Бонусных вращения',
 			chanceText: 'Секретный шанс!',
-			price: '1479₽',
+			price: constants.price[4],
 			buttonText: 'выбрать'
 		}
 	]
