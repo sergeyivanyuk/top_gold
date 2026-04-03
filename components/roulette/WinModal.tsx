@@ -10,7 +10,7 @@ interface WinModalProps {
 }
 
 export function WinModal({ winAmount, onClose, isOpen }: WinModalProps) {
-	const isBigWin = winAmount >= 10000
+	const isBigWin = winAmount >= 5000
 
 	// Аудио для выигрыша
 	const { play: playWinSound } = useAudio({

@@ -770,6 +770,9 @@ select {
 
 /* Медиазапрос для экранов менее 330px */
 @media (max-width: 330px) {
+	.slider-items {
+		height: 40vh;
+	}
 	.official {
 		margin-top: 20px;
 	}

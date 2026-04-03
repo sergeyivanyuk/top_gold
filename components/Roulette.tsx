@@ -398,7 +398,7 @@ export function Roulette({ onWin }: RouletteProps) {
 						}}
 					>
 						{/* Заголовок */}
-						<h2 className="text-win-title mb-2 text-center">Вам почти повезло!</h2>
+						<h2 className="text-win-title mb-2 text-center">Вам {tariffGold < 20000 && <span>почти</span>} повезло!</h2>
 						{/* Подзаголовок */}
 
 						<p className="text-gray-subtext text-center mb-3">
@@ -406,7 +406,7 @@ export function Roulette({ onWin }: RouletteProps) {
 						</p>
 						<p className="text-gray-subtext text-center mb-3">Выйгрыш будет начислен в течении 24ч</p>
 						<p className="text-gray-subtext text-center mb-3">Вам доступно бонусное вращение с повышенным шансом</p>
-						<p className="text-gray-subtext text-center mb-6">Следующее вращение может все изменить!</p>
+						{tariffGold < 20000 && <p className="text-gray-subtext text-center mb-6">Следующее вращение может все изменить!</p>}
 						{/* Две кнопки */}
 						<div className="flex flex-col gap-4 w-full">
 							<button
