@@ -285,12 +285,12 @@ function PaymentContent() {
 				</button>
 			</div>
 			{/* Кнопка тестовой оплаты */}
-			<button
+			{/* <button
 				onClick={() => (window.location.href = '/payment/success?transaction=test')}
 				className="mt-10 w-full max-w-4xl py-4 rounded-card bg-gradient-to-b from-green-500 to-green-700 text-white text-xl font-bold shadow-lg"
 			>
 				Тестовая оплата (перейти на главную)
-			</button>
+			</button> */}
 
 			{/* Модальное окно успеха (ввод ника) */}
 			{showSuccessModal && (
