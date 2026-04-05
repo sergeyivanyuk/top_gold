@@ -134,8 +134,8 @@ export function Roulette({ onWin }: RouletteProps) {
 	const spinWheel = () => {
 		if (isSpinning) return
 
-		// Если тариф не куплен и вращений не осталось, показываем бонусное окно
-		if (!hasPurchasedTariff && remainingSpins === 0) {
+		// Если тариф не куплен, вращений не осталось и это уже было первое вращение, показываем бонусное окно
+		if (!hasPurchasedTariff && remainingSpins === 0 && totalSpins === 1) {
 			setShowExtraSpinModal(true)
 			return
 		}
