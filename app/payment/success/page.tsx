@@ -2,6 +2,7 @@
 
 import { recordPurchase, recordUser } from '@/lib/dailyStats'
 import { getSpinsByTariff, usePurchasesStore } from '@/lib/store/purchases'
+import { useRouletteStore } from '@/lib/store/roulette'
 import { useUserStore } from '@/lib/store/user'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -17,7 +18,9 @@ function PaymentSuccessContent() {
 	const [nickname, setNickname] = useState('')
 	const [showConfirmModal, setShowConfirmModal] = useState(false)
 	const addPurchase = usePurchasesStore(state => state.addPurchase)
+	const getTotalSpins = usePurchasesStore(state => state.getTotalSpins)
 	const setNicknameInStore = useUserStore(state => state.setNickname)
+	const setRemainingSpins = useRouletteStore(state => state.setRemainingSpins)
 
 	const handleContinue = () => {
 		if (!nickname.trim()) {
@@ -46,6 +49,10 @@ function PaymentSuccessContent() {
 			recordPurchase(price)
 		}
 		recordUser(trimmedNickname)
+
+		// Обновляем количество оставшихся вращений
+		const totalSpins = getTotalSpins(trimmedNickname)
+		setRemainingSpins(totalSpins)
 
 		// Перенаправляем на главную страницу
 		router.push('/')
