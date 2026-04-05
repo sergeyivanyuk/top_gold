@@ -8,7 +8,6 @@ import { usePurchasesStore } from '@/lib/store/purchases'
 import { useRouletteStore } from '@/lib/store/roulette'
 import { useUserStore } from '@/lib/store/user'
 import { cn } from '@/lib/utils'
-import { telegramService } from '@/services/telegram/telegram.service'
 import { RotateCw } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -48,7 +47,10 @@ export function Roulette({ onWin }: RouletteProps) {
 	} = useRouletteStore()
 
 	const { nickname, clearNickname } = useUserStore()
-	const { consumeSpin, clearPurchases } = usePurchasesStore()
+	const { purchases, consumeSpin, clearPurchases } = usePurchasesStore()
+
+	// Проверка, купил ли пользователь тариф
+	const hasPurchasedTariff = nickname ? purchases.some((p: any) => p.nickname === nickname) : false
 
 	// Аудио для вращения колеса
 	const {
@@ -97,19 +99,26 @@ export function Roulette({ onWin }: RouletteProps) {
 			sessionStorage.removeItem('visitedSlider')
 			// Если это первая прокрутка и вращения закончились, сбрасываем состояние
 			if (totalSpins === 1 && remainingSpins === 0) {
-				// Сбрасываем состояние хранилищ
-				reset()
-				clearNickname()
-				clearPurchases()
-				// Очищаем localStorage
-				localStorage.clear()
-				// Очищаем куки
-				document.cookie.split(';').forEach(c => {
-					document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/')
-				})
+				// Проверяем, купил ли пользователь тариф
+				const hasPurchased = nickname ? purchases.some((p: any) => p.nickname === nickname) : false
+				if (hasPurchased) {
+					// Пользователь купил тариф - сбрасываем состояние как обычно
+					reset()
+					clearNickname()
+					clearPurchases()
+					// Очищаем localStorage
+					localStorage.clear()
+					// Очищаем куки
+					document.cookie.split(';').forEach(c => {
+						document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/')
+					})
+				} else {
+					// Пользователь не купил тариф - не сбрасываем состояние, показываем бонусное окно
+					setShowExtraSpinModal(true)
+				}
 			}
 		}
-	}, [totalSpins, remainingSpins, reset, clearNickname, clearPurchases])
+	}, [totalSpins, remainingSpins, reset, clearNickname, clearPurchases, purchases, nickname, setShowExtraSpinModal])
 
 	// Эффект для воспроизведения звука при открытии модального окна завершения тарифа
 	useEffect(() => {
@@ -124,6 +133,12 @@ export function Roulette({ onWin }: RouletteProps) {
 
 	const spinWheel = () => {
 		if (isSpinning) return
+
+		// Если тариф не куплен и вращений не осталось, показываем бонусное окно
+		if (!hasPurchasedTariff && remainingSpins === 0) {
+			setShowExtraSpinModal(true)
+			return
+		}
 
 		setIsSpinning(true)
 		setSelectedSegment(null)
@@ -302,9 +317,13 @@ export function Roulette({ onWin }: RouletteProps) {
 				}
 				addWinner(winner)
 
-				// Отправляем уведомление о новом пользователе при первой прокрутке
+				// Отправляем уведомление о новом пользователе при первой прокрутке через серверный API
 				if (wasFirstSpin) {
-					telegramService.sendNewUserNotification(winner.username).catch((err: any) => {
+					fetch('/api/telegram/new-user', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ username: winner.username })
+					}).catch((err: any) => {
 						console.error('Ошибка отправки уведомления о новом пользователе в Telegram:', err)
 					})
 				}
@@ -320,9 +339,16 @@ export function Roulette({ onWin }: RouletteProps) {
 					// Проверяем, закончились ли вращения
 					newRemaining = useRouletteStore.getState().remainingSpins
 					if (newRemaining === 0) {
-						// Отправляем уведомление о выигрыше за весь тариф
+						// Отправляем уведомление о выигрыше за весь тариф через серверный API
 						const totalTariffGold = useRouletteStore.getState().tariffGold
-						telegramService.sendWinNotification(winner.username, totalTariffGold).catch((err: any) => {
+						fetch('/api/telegram/win', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({
+								username: winner.username,
+								goldAmount: totalTariffGold
+							})
+						}).catch((err: any) => {
 							console.error('Ошибка отправки уведомления в Telegram:', err)
 						})
 						// Показываем модальное окно с итогами тарифа

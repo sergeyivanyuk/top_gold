@@ -173,7 +173,7 @@
 	.text-stat-label {
 		-webkit-text-fill-color: transparent;
 		color: #0000;
-		font-size: 20px;
+		font-size: 16px;
 		font-family:
 			var(--font-roboto-condensed),
 			Roboto Condensed,
@@ -635,11 +635,45 @@ select {
 	padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 .slider-items {
-	height: 60vh;
+	height: 53vh;
 }
-
+.wheel-image {
+	width: min(88vw, 360px);
+	height: min(88vw, 360px);
+	max-width: 360px;
+	max-height: 360px;
+}
+.wheel-gold {
+	bottom: 6rem;
+}
+.wheel-text {
+	bottom: 6.5rem;
+}
+@media (max-height: 1440px) {
+	.slider-items {
+		height: 35vh;
+	}
+}
+@media (max-height: 960px) {
+	.slider-items {
+		height: 53vh;
+	}
+}
+@media (max-height: 690px) {
+	.slider-items {
+		height: 60vh;
+	}
+}
 /* Медиазапрос для экранов менее 400px */
 @media (max-width: 399px) {
+	.wheel-text {
+		bottom: 6.5rem;
+	}
+	.wheel-gold {
+		bottom: 6rem;
+	}
+	/* Размер колеса теперь определяется общим правилом .wheel-image */
+
 	h1.text-2xl.text-white {
 		font-size: 20px !important;
 		line-height: 20px !important;
@@ -770,8 +804,15 @@ select {
 
 /* Медиазапрос для экранов менее 330px */
 @media (max-width: 330px) {
-	.slider-items {
-		height: 40vh;
+	.wheel-text {
+		bottom: 5rem;
+	}
+	.wheel-gold {
+		bottom: 4.5rem;
+	}
+	.wheel-image {
+		width: min(88vw, 300px);
+		height: min(88vw, 300px);
 	}
 	.official {
 		margin-top: 20px;

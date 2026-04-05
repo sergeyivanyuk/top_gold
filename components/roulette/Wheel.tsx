@@ -10,7 +10,7 @@ interface WheelProps {
 }
 export function Wheel({ rotation, isSpinning, segmentAngle }: WheelProps) {
 	return (
-		<div className="relative mt-5">
+		<div className="relative mt-5 wheel">
 			{/* Указатель */}
 			<div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
 				<div className="relative w-18 h-18">
@@ -63,7 +63,7 @@ export function Wheel({ rotation, isSpinning, segmentAngle }: WheelProps) {
 			</div>
 			{/* Колесо */}
 			<div
-				className="relative w-75 h-75 sm:w-80 sm:h-80 rounded-full shadow-2xl overflow-hidden"
+				className="relative w-75 h-75 rounded-full shadow-2xl overflow-hidden wheel-image"
 				style={{ transform: `rotate(${rotation}deg)` }}
 			>
 				<div className={cn('absolute inset-0', !isSpinning && 'animate-sway')}>
@@ -87,10 +87,7 @@ export function Wheel({ rotation, isSpinning, segmentAngle }: WheelProps) {
 								transform: `rotate(${index * segmentAngle + segmentAngle}deg)`
 							}}
 						>
-							<div
-								className="absolute w-6 h-6"
-								style={{ bottom: '4.5rem' }}
-							>
+							<div className="absolute w-6 h-6 wheel-gold">
 								<Image
 									src="/gold-one.png"
 									alt="голда"
@@ -101,10 +98,7 @@ export function Wheel({ rotation, isSpinning, segmentAngle }: WheelProps) {
 								/>
 							</div>
 							{/* Текст с объемной тенью */}
-							<div
-								className="relative inline-block"
-								style={{ bottom: '6rem' }}
-							>
+							<div className="relative inline-block wheel-text">
 								{/* Тень */}
 								<span
 									style={{

@@ -109,55 +109,6 @@ export default function SliderPage() {
 		sessionStorage.setItem('visitedSlider', 'true')
 	}, [])
 
-	// Анимация-подсказка свайпа для первого слайда (индекс 1) в течение 60 секунд
-	useEffect(() => {
-		if (!hintActive) return
-		const duration = 60000 // 60 секунд
-		const interval = 700 // интервал обновления (мс)
-		let direction = 1 // 1 для вправо, -1 для влево
-		let elapsed = 0
-		const maxOffset = 15 // максимальное смещение в пикселях
-		const baseSpeed = 4 // максимальная скорость (пикселей за шаг) в центре
-		const minSpeed = 0.4 // минимальная скорость на краях
-
-		const hintInterval = setInterval(() => {
-			setHintOffset(prev => {
-				// Линейная зависимость скорости от смещения (быстрее в центре, медленнее на краях)
-				const speed = Math.max(minSpeed, baseSpeed * (1 - Math.abs(prev) / maxOffset))
-				// Новое смещение с учетом направления и скорости
-				let newOffset = prev + direction * speed
-				// Если вышли за границы, меняем направление и отражаем смещение
-				if (Math.abs(newOffset) > maxOffset) {
-					direction *= -1
-					// Отражаем излишек
-					const overshoot = Math.abs(newOffset) - maxOffset
-					newOffset = direction * (maxOffset - overshoot)
-					// Гарантируем, что смещение остаётся в пределах
-					if (Math.abs(newOffset) > maxOffset) {
-						newOffset = direction * maxOffset
-					}
-				}
-				return newOffset
-			})
-			elapsed += interval
-			if (elapsed >= duration) {
-				clearInterval(hintInterval)
-				setHintActive(false)
-				setHintOffset(0)
-			}
-		}, interval)
-
-		return () => clearInterval(hintInterval)
-	}, [hintActive])
-
-	// Остановка анимации при переключении слайда
-	useEffect(() => {
-		if (currentSlide !== 1 && hintActive) {
-			setHintActive(false)
-			setHintOffset(0)
-		}
-	}, [currentSlide, hintActive])
-
 	const getSlideStyle = (index: number) => {
 		const diff = index - currentSlide
 		const absDiff = Math.abs(diff)
@@ -217,7 +168,7 @@ export default function SliderPage() {
 
 			{/* Слайдер */}
 			<div
-				className="relative w-full max-w-4xl overflow-visible h-[500px] slider"
+				className="relative w-full max-w-4xl overflow-visible slider h-[500]"
 				onTouchStart={handleTouchStart}
 				onTouchMove={handleTouchMove}
 				onTouchEnd={handleTouchEnd}
@@ -230,7 +181,7 @@ export default function SliderPage() {
 						return (
 							<div
 								key={index}
-								className="absolute w-[280px] transition-all duration-700 ease-in-out"
+								className="absolute w-[280px] transition-all duration-900 ease-in-out"
 								style={{
 									...style,
 									left: '50%',
@@ -266,7 +217,7 @@ export default function SliderPage() {
 			</div>
 
 			{/* Блоки "Официальное начисление" и "Работаем с 2023 года" */}
-			<div className="mt-20 grid grid-cols-2 gap-2.5 w-full max-w-4xl official">
+			<div className="mt-25 grid grid-cols-2 gap-2.5 w-full max-w-4xl official">
 				<FeatureBlock
 					iconSrc="/official.png"
 					iconAlt="Официальное"

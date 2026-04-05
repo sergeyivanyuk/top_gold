@@ -1,12 +1,16 @@
 const https = require('https')
 const http = require('http')
 
-const APP_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
 const ENDPOINT = '/api/statistics/evening'
 
-const url = new URL(ENDPOINT, NEXT_PUBLIC_BASE_URL)
+// Убедимся, что BASE_URL не заканчивается на /, чтобы избежать двойного слэша
+const base = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL
+const url = new URL(ENDPOINT, base)
 
 const protocol = url.protocol === 'https:' ? https : http
+
+console.log(`Отправка запроса к ${url.toString()}`)
 
 const req = protocol.request(url, { method: 'GET' }, res => {
 	let data = ''

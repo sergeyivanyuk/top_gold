@@ -1,10 +1,11 @@
 'use client'
 import { Button } from '@/components/ui/Button'
+import constants from '@/data/constants.json'
 import { PaymentMethod } from '@/types/payment'
 import { ChevronLeft } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 
 function PaymentContent() {
 	const [selectedPayment, setSelectedPayment] = useState('sbp')
@@ -22,6 +23,49 @@ function PaymentContent() {
 	const tariff = searchParams.get('tariff') || 'Стандарт'
 	const price = searchParams.get('price') || '179'
 
+	// Маппинг тарифов к ценам из constants.json (порядок как в слайдере)
+	const tariffOrder = ['Стандарт', 'Выгодный', 'Премиум', 'Люкс']
+	const expectedPriceByTariff: Record<string, number> = {}
+	tariffOrder.forEach((tariffName, index) => {
+		const key = (index + 1).toString() as keyof typeof constants.price
+		const priceStr = constants.price[key]
+		// Извлекаем число из строки "1₽" -> 1
+		const priceNum = parseInt(priceStr.replace('₽', ''), 10)
+		expectedPriceByTariff[tariffName] = priceNum
+	})
+
+	// Проверяем соответствие цены и тарифа
+	const priceNum = Number(price)
+
+	// Проверка валидности тарифа
+	const isTariffValid = expectedPriceByTariff.hasOwnProperty(tariff)
+	// Проверка, что цена соответствует какому-либо тарифу
+	const priceExists = Object.values(expectedPriceByTariff).includes(priceNum)
+
+	// Если тариф или цена невалидны, редирект на страницу выбора тарифа
+	useEffect(() => {
+		if (!isTariffValid || !priceExists) {
+			router.push('/slider')
+		}
+	}, [isTariffValid, priceExists, router])
+
+	// Если невалидно, не рендерим компонент (редирект произойдет)
+	if (!isTariffValid || !priceExists) {
+		return null
+	}
+
+	// Определяем финальный тариф
+	let finalTariff = tariff
+	if (expectedPriceByTariff[tariff] !== priceNum) {
+		// Находим тариф по цене
+		const tariffByPrice = Object.keys(expectedPriceByTariff).find(key => expectedPriceByTariff[key] === priceNum)
+		if (tariffByPrice) {
+			finalTariff = tariffByPrice
+		}
+		// Если цена не соответствует ни одному тарифу, но priceExists уже true, значит цена соответствует другому тарифу
+		// и tariffByPrice будет найден, поэтому эта ветка else не выполнится
+	}
+
 	// Количество вращений и бонусных вращений в зависимости от тарифа
 	const spinsByTariff: Record<string, number> = {
 		Стандарт: 1,
@@ -35,8 +79,8 @@ function PaymentContent() {
 		Премиум: 2,
 		Люкс: 3
 	}
-	const spins = spinsByTariff[tariff] || 1
-	const bonusSpins = bonusSpinsByTariff[tariff] || 0
+	const spins = spinsByTariff[finalTariff] || 1
+	const bonusSpins = bonusSpinsByTariff[finalTariff] || 0
 
 	const handleContinue = () => {
 		if (!nickname.trim()) {
@@ -71,7 +115,7 @@ function PaymentContent() {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
-					tariff,
+					tariff: finalTariff,
 					price: Number(price),
 					paymentMethod,
 					nickname,
@@ -119,7 +163,7 @@ function PaymentContent() {
 				</button>
 				<h1 className="text-2xl font-bold mb-1 text-white">Оплата вращений</h1>
 			</div>
-			<p className="mb-10 text-gray-subtext">Вы выбрали {tariff.toLowerCase()}</p>
+			<p className="mb-10 text-gray-subtext">Вы выбрали {finalTariff.toLowerCase()}</p>
 			{/* Что вы получите*/}
 			<div className="w-full rounded-card overflow-hidden bg-[url('/banner.png')] bg-cover bg-center p-5 pb-10 mb-5">
 				<h3 className="text-what-you-get mb-2.5">Что вы получите</h3>
@@ -400,7 +444,10 @@ function PaymentContent() {
 
 			{/* Модальное окно для ввода промокода */}
 			{showPromoModal && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs">
+				<div
+					className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs"
+					onClick={() => setShowPromoModal(false)}
+				>
 					<div
 						className="relative w-[90%] max-w-md rounded-2xl p-5 shadow-2xl flex flex-col items-center"
 						style={{
