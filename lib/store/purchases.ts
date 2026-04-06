@@ -6,16 +6,18 @@ export interface Purchase {
 	nickname: string
 	tariff: string
 	spins: number // общее количество вращений (основные + бонусные)
+	usedSpins: number // количество уже использованных вращений
 	timestamp: number
 	transactionId?: string
 }
 
 interface PurchasesStore {
 	purchases: Purchase[]
-	addPurchase: (purchase: Omit<Purchase, 'id' | 'timestamp'>) => void
+	addPurchase: (purchase: Omit<Purchase, 'id' | 'timestamp' | 'usedSpins'>) => void
 	getRemainingSpins: (nickname: string) => number
 	consumeSpin: (nickname: string) => boolean
 	getTotalSpins: (nickname: string) => number
+	getUsedSpins: (nickname: string) => number
 	clearPurchases: () => void
 }
 
@@ -28,6 +30,7 @@ export const usePurchasesStore = create<PurchasesStore>()(
 				const newPurchase: Purchase = {
 					...purchaseData,
 					id: Date.now().toString(),
+					usedSpins: 0,
 					timestamp: Date.now()
 				}
 				set(state => ({
@@ -37,29 +40,20 @@ export const usePurchasesStore = create<PurchasesStore>()(
 
 			getRemainingSpins: nickname => {
 				const purchases = get().purchases.filter(p => p.nickname === nickname)
-				// Для простоты считаем, что все вращения еще не использованы
-				// В реальности нужно отслеживать использованные вращения
-				return purchases.reduce((total, p) => total + p.spins, 0)
+				return purchases.reduce((total, p) => total + (p.spins - p.usedSpins), 0)
 			},
 
 			consumeSpin: nickname => {
-				// В упрощенной реализации просто уменьшаем общее количество вращений
-				// Для точного учета нужно хранить отдельно использованные вращения
 				const purchases = get().purchases.filter(p => p.nickname === nickname)
 				if (purchases.length === 0) return false
 
-				// Удаляем одно вращение из первого подходящего purchase
-				// В реальном приложении нужна более сложная логика
+				// Находим первую покупку, где есть неиспользованные вращения
 				const updatedPurchases = [...get().purchases]
-				const index = updatedPurchases.findIndex(p => p.nickname === nickname && p.spins > 0)
+				const index = updatedPurchases.findIndex(p => p.nickname === nickname && p.usedSpins < p.spins)
 				if (index === -1) return false
 
-				updatedPurchases[index].spins -= 1
-
-				// Если вращений стало 0, удаляем purchase из массива
-				if (updatedPurchases[index].spins === 0) {
-					updatedPurchases.splice(index, 1)
-				}
+				// Увеличиваем счетчик использованных вращений
+				updatedPurchases[index].usedSpins += 1
 
 				set({ purchases: updatedPurchases })
 				return true
@@ -71,13 +65,19 @@ export const usePurchasesStore = create<PurchasesStore>()(
 					.reduce((total, p) => total + p.spins, 0)
 			},
 
+			getUsedSpins: nickname => {
+				return get()
+					.purchases.filter(p => p.nickname === nickname)
+					.reduce((total, p) => total + p.usedSpins, 0)
+			},
+
 			clearPurchases: () => {
 				set({ purchases: [] })
 			}
 		}),
 		{
 			name: 'purchases-storage',
-			version: 1
+			version: 2 // Увеличиваем версию для миграции
 		}
 	)
 )

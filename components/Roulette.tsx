@@ -120,6 +120,18 @@ export function Roulette({ onWin }: RouletteProps) {
 		}
 	}, [totalSpins, remainingSpins, reset, clearNickname, clearPurchases, purchases, nickname, setShowExtraSpinModal])
 
+	// Эффект для показа бонусного окна при загрузке, если вращений нет
+	useEffect(() => {
+		// Проверяем после небольшой задержки, чтобы состояние успело загрузиться
+		const timer = setTimeout(() => {
+			if (remainingSpins === 0 && totalSpins > 0) {
+				setShowExtraSpinModal(true)
+			}
+		}, 500)
+
+		return () => clearTimeout(timer)
+	}, [remainingSpins, totalSpins, setShowExtraSpinModal])
+
 	// Эффект для воспроизведения звука при открытии модального окна завершения тарифа
 	useEffect(() => {
 		if (showTariffCompletedModal) {
@@ -134,8 +146,8 @@ export function Roulette({ onWin }: RouletteProps) {
 	const spinWheel = () => {
 		if (isSpinning) return
 
-		// Если тариф не куплен, вращений не осталось и это уже было первое вращение, показываем бонусное окно
-		if (!hasPurchasedTariff && remainingSpins === 0 && totalSpins === 1) {
+		// Если вращений не осталось и это не первое бесплатное вращение
+		if (remainingSpins === 0 && totalSpins > 0) {
 			setShowExtraSpinModal(true)
 			return
 		}
@@ -435,16 +447,22 @@ export function Roulette({ onWin }: RouletteProps) {
 			{/* Кнопка вращения */}
 			<Button
 				onClick={spinWheel}
-				disabled={isSpinning}
+				disabled={isSpinning || (remainingSpins === 0 && totalSpins > 0)}
 				variant="gold"
 				size="xl"
-				className={cn('w-full text-[25px]', isSpinning && 'opacity-50 cursor-not-allowed', !isSpinning && 'animate-pulse-gold')}
+				className={cn(
+					'w-full text-[25px]',
+					(isSpinning || (remainingSpins === 0 && totalSpins > 0)) && 'opacity-50 cursor-not-allowed',
+					!isSpinning && remainingSpins > 0 && 'animate-pulse-gold'
+				)}
 			>
 				{isSpinning ? (
 					<span className="flex items-center gap-2">
 						<RotateCw className="w-5 h-5 animate-spin" />
 						Вращаю...
 					</span>
+				) : remainingSpins === 0 && totalSpins > 0 ? (
+					'Нет вращений'
 				) : (
 					'Крутить рулетку'
 				)}

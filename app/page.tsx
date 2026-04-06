@@ -12,18 +12,18 @@ import { useEffect } from 'react'
 export default function Home() {
 	const { remainingSpins, setRemainingSpins } = useRouletteStore()
 	const { nickname } = useUserStore()
-	const getTotalSpins = usePurchasesStore(state => state.getTotalSpins)
+	const getRemainingSpins = usePurchasesStore(state => state.getRemainingSpins)
 
 	// Загружаем количество вращений при изменении ника
 	useEffect(() => {
 		if (nickname) {
-			const totalSpins = getTotalSpins(nickname)
-			setRemainingSpins(totalSpins)
+			const remaining = getRemainingSpins(nickname)
+			setRemainingSpins(remaining)
 		} else {
 			// Если нет ника, сбрасываем вращения (или оставляем 0)
 			setRemainingSpins(0)
 		}
-	}, [nickname, getTotalSpins, setRemainingSpins])
+	}, [nickname, getRemainingSpins, setRemainingSpins])
 
 	// Регистрируем посещение (уникальный IP)
 	useEffect(() => {
