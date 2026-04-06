@@ -124,13 +124,15 @@ export function Roulette({ onWin }: RouletteProps) {
 	useEffect(() => {
 		// Проверяем после небольшой задержки, чтобы состояние успело загрузиться
 		const timer = setTimeout(() => {
-			if (remainingSpins === 0 && totalSpins > 0) {
+			// Не показываем бонусное окно, если пользователь купил тариф (имеет покупки)
+			const hasPurchased = nickname ? purchases.some((p: any) => p.nickname === nickname) : false
+			if (remainingSpins === 0 && totalSpins > 0 && !hasPurchased) {
 				setShowExtraSpinModal(true)
 			}
 		}, 500)
 
 		return () => clearTimeout(timer)
-	}, [remainingSpins, totalSpins, setShowExtraSpinModal])
+	}, [remainingSpins, totalSpins, setShowExtraSpinModal, nickname, purchases])
 
 	// Эффект для воспроизведения звука при открытии модального окна завершения тарифа
 	useEffect(() => {
@@ -147,7 +149,9 @@ export function Roulette({ onWin }: RouletteProps) {
 		if (isSpinning) return
 
 		// Если вращений не осталось и это не первое бесплатное вращение
-		if (remainingSpins === 0 && totalSpins > 0) {
+		// Проверяем, купил ли пользователь тариф
+		const hasPurchased = nickname ? purchases.some((p: any) => p.nickname === nickname) : false
+		if (remainingSpins === 0 && totalSpins > 0 && !hasPurchased) {
 			setShowExtraSpinModal(true)
 			return
 		}
