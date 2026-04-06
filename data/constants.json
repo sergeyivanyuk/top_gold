@@ -137,5 +137,33 @@
 			"gold": 5000,
 			"probability": 0
 		}
-	}
+	},
+	"_comment_promo": "Промокоды для получения бесплатных вращений",
+	"promoCodes": [
+		{
+			"code": "FREE5SPINS",
+			"spins": 5,
+			"active": true
+		},
+		{
+			"code": "WELCOME10",
+			"spins": 10,
+			"active": true
+		},
+		{
+			"code": "BONUS3",
+			"spins": 3,
+			"active": true
+		},
+		{
+			"code": "GOLDENSPIN",
+			"spins": 7,
+			"active": true
+		},
+		{
+			"code": "TESTCODE",
+			"spins": 1,
+			"active": false
+		}
+	]
 }

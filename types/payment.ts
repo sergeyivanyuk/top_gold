@@ -50,3 +50,16 @@ export interface PaymentWebhookData {
 	timestamp: string
 	metadata?: Record<string, any>
 }
+
+// Типы для промокодов
+export interface PromoCode {
+	code: string
+	spins: number
+	active?: boolean
+}
+
+export interface PromoCodeValidationResult {
+	valid: boolean
+	spins?: number
+	message?: string
+}

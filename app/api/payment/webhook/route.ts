@@ -1,4 +1,5 @@
 import { getPaymentService } from '@/services/payment/payment.service'
+import { telegramService } from '@/services/telegram/telegram.service'
 import { PaymentStatus } from '@/types/payment'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -30,6 +31,21 @@ export async function POST(request: NextRequest) {
 			console.log(`✅ Успешный платеж ${result.paymentId}`)
 			// Здесь можно было бы добавить покупку в БД, но у нас только клиентское хранилище
 			// В реальном приложении нужно сохранять в базу данных
+
+			// Отправляем уведомление в Telegram
+			try {
+				// Извлекаем сумму платежа из тела вебхука
+				// Предполагаемая структура: body.paymentDetails.amount или body.amount
+				const amount = body.paymentDetails?.amount || body.amount || 0
+				const orderNumber = result.paymentId
+				const paymentTime = new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })
+
+				console.log(`Отправка уведомления о платеже: ${amount} ₽, заказ ${orderNumber}`)
+				await telegramService.sendPurchaseNotification(amount, orderNumber, paymentTime)
+			} catch (telegramError) {
+				console.error('Ошибка отправки уведомления в Telegram:', telegramError)
+				// Не прерываем выполнение, просто логируем ошибку
+			}
 		}
 
 		return NextResponse.json({ success: true, ...result }, { status: 200 })

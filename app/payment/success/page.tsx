@@ -15,6 +15,8 @@ function PaymentSuccessContent() {
 	const tariff = searchParams.get('tariff') || 'Премиум' // По умолчанию для тестирования
 	const priceParam = searchParams.get('price')
 	const price = priceParam ? parseFloat(priceParam) : 0
+	const isPromo = searchParams.get('promo') === 'true'
+	const promoSpins = searchParams.get('spins') ? parseInt(searchParams.get('spins')!) : 5
 	const [nickname, setNickname] = useState('')
 	const [showConfirmModal, setShowConfirmModal] = useState(false)
 	const addPurchase = usePurchasesStore(state => state.addPurchase)
@@ -36,16 +38,23 @@ function PaymentSuccessContent() {
 		setNicknameInStore(trimmedNickname)
 
 		// Добавляем покупку в store
-		const spins = getSpinsByTariff(tariff)
+		let finalTariff = tariff
+		let finalSpins = getSpinsByTariff(tariff)
+
+		if (isPromo) {
+			finalTariff = 'Промокод'
+			finalSpins = promoSpins
+		}
+
 		addPurchase({
 			nickname: trimmedNickname,
-			tariff,
-			spins,
+			tariff: finalTariff,
+			spins: finalSpins,
 			transactionId: transactionId || undefined
 		})
 
-		// Регистрируем покупку и пользователя в дневной статистике
-		if (price > 0) {
+		// Регистрируем покупку и пользователя в дневной статистике (только для реальных покупок)
+		if (price > 0 && !isPromo) {
 			recordPurchase(price)
 		}
 		recordUser(trimmedNickname)
@@ -84,9 +93,13 @@ function PaymentSuccessContent() {
 					/>
 				</div>
 				{/* Заголовок */}
-				<h2 className="text-win-title mb-2 text-center">Оплата выполнена</h2>
+				<h2 className="text-win-title mb-2 text-center">{isPromo ? 'Промокод активирован' : 'Оплата выполнена'}</h2>
 				{/* Подзаголовок */}
-				<p className="text-gray-subtext text-center mb-6">Пожалуйста, введите свой ник в игре, чтобы мы могли зачислить вам выигрыш после вращений</p>
+				<p className="text-gray-subtext text-center mb-6">
+					{isPromo
+						? `Введите свой ник в игре, чтобы получить ${promoSpins} бесплатных вращений`
+						: 'Пожалуйста, введите свой ник в игре, чтобы мы могли зачислить вам выигрыш после вращений'}
+				</p>
 				{/* Инпут */}
 				<input
 					type="text"

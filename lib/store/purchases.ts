@@ -55,6 +55,12 @@ export const usePurchasesStore = create<PurchasesStore>()(
 				if (index === -1) return false
 
 				updatedPurchases[index].spins -= 1
+
+				// Если вращений стало 0, удаляем purchase из массива
+				if (updatedPurchases[index].spins === 0) {
+					updatedPurchases.splice(index, 1)
+				}
+
 				set({ purchases: updatedPurchases })
 				return true
 			},

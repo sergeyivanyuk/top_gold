@@ -1,3 +1,4 @@
+import constants from '@/data/constants.json'
 import { getPaymentService } from '@/services/payment/payment.service'
 import { PaymentMethod, PaymentRequest, PaymentStatus } from '@/types/payment'
 import { NextRequest, NextResponse } from 'next/server'
@@ -16,6 +17,21 @@ export async function POST(request: NextRequest) {
 		const validMethods = Object.values(PaymentMethod)
 		if (!validMethods.includes(paymentMethod as PaymentMethod)) {
 			return NextResponse.json({ error: `Недопустимый метод оплаты. Допустимые: ${validMethods.join(', ')}` }, { status: 400 })
+		}
+
+		// Валидация промокода (если указан)
+		if (promoCode) {
+			const trimmedCode = promoCode.trim().toUpperCase()
+			const promoCodes = constants.promoCodes || []
+			const foundPromo = promoCodes.find(p => p.code.toUpperCase() === trimmedCode)
+
+			if (!foundPromo) {
+				return NextResponse.json({ error: 'Неверный промокод' }, { status: 400 })
+			}
+
+			if (foundPromo.active === false) {
+				return NextResponse.json({ error: 'Промокод неактивен' }, { status: 400 })
+			}
 		}
 
 		// Если nickname не указан, используем значение по умолчанию

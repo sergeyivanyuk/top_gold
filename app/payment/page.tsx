@@ -16,6 +16,7 @@ function PaymentContent() {
 	const [showTermsModal, setShowTermsModal] = useState(false)
 	const [nickname, setNickname] = useState('')
 	const [promoCode, setPromoCode] = useState('')
+	const [promoError, setPromoError] = useState<string | null>(null)
 	const [isLoading, setIsLoading] = useState(false)
 	const [paymentError, setPaymentError] = useState<string | null>(null)
 	const searchParams = useSearchParams()
@@ -103,6 +104,36 @@ function PaymentContent() {
 	const handlePromoClick = () => {
 		setShowPromoModal(true)
 	}
+
+	const handlePromoSubmit = () => {
+		const trimmedCode = promoCode.trim().toUpperCase()
+
+		if (!trimmedCode) {
+			setPromoError('Введите промокод')
+			return
+		}
+
+		// Ищем промокод в массиве promoCodes
+		const promoCodes = constants.promoCodes || []
+		const foundPromo = promoCodes.find(promo => promo.code.toUpperCase() === trimmedCode)
+
+		if (!foundPromo) {
+			setPromoError('Неверный промокод')
+			return
+		}
+
+		// Проверяем, активен ли промокод
+		if (foundPromo.active === false) {
+			setPromoError('Промокод неактивен')
+			return
+		}
+
+		// Промокод верный и активен, перенаправляем на страницу успеха
+		setPromoError(null)
+		setShowPromoModal(false)
+		router.push(`/payment/success?promo=true&spins=${foundPromo.spins}`)
+	}
+
 	const handleSupportClick = () => {
 		window.open('https://t.me/Andrey_manager_777', '_blank')
 	}
@@ -477,13 +508,18 @@ function PaymentContent() {
 						<input
 							type="text"
 							value={promoCode}
-							onChange={e => setPromoCode(e.target.value)}
+							onChange={e => {
+								setPromoCode(e.target.value)
+								setPromoError(null) // Сбрасываем ошибку при изменении
+							}}
 							placeholder="Введите сюда ваш промокод"
-							className="w-full py-3 px-4 rounded-xl bg-black/30 border border-gold-light text-white text-[12px] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold mb-6"
+							className="w-full py-3 px-4 rounded-xl bg-black/30 border border-gold-light text-white text-[12px] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold mb-4"
 						/>
+						{/* Сообщение об ошибке */}
+						{promoError && <p className="text-red-400 text-sm mb-4 text-center">{promoError}</p>}
 						{/* Кнопка продолжить */}
 						<button
-							onClick={() => setShowPromoModal(false)}
+							onClick={handlePromoSubmit}
 							disabled={!promoCode.trim()}
 							className={`px-12 py-3 w-full transition-colors ${promoCode.trim() ? 'btn-gold-slide' : 'btn-gold-slide opacity-50 cursor-not-allowed'}`}
 						>
