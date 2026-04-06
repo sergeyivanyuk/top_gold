@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: top-gold-app
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      # Переменные окружения из .env.local (должны быть заданы в файле .env или через secrets)
+      - PLATEGA_MERCHANT_ID=${PLATEGA_MERCHANT_ID}
+      - PLATEGA_API_KEY=${PLATEGA_API_KEY}
+      - NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL:-http://localhost:3000}
+      - NEXT_PUBLIC_USE_MOCK_PAYMENT=${NEXT_PUBLIC_USE_MOCK_PAYMENT:-false}
+    env_file:
+      - .env.local
+    networks:
+      - app-network
+    # Здоровье проверка (опционально)
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Обратный прокси Nginx (опционально, если нужно обслуживать статику или SSL)
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: top-gold-nginx
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./ssl:/etc/nginx/ssl:ro
+  #   depends_on:
+  #     - app
+  #   networks:
+  #     - app-network
+
+networks:
+  app-network:
+    driver: bridge

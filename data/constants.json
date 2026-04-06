@@ -7,15 +7,71 @@
 	"_commentts": "блок с ценой тарифов",
 	"price": {
 		"1": "1₽",
-		"2": "2₽",
-		"3": "3₽",
-		"4": "4₽"
+		"2": "537₽",
+		"3": "825₽",
+		"4": "1479₽"
 	},
 	"_comments": "Блок с игроками username - ник, gold - количество голды",
 	"recentWins": [
 		{
 			"username": "Gvardeez_74",
 			"gold": "12 500"
+		},
+		{
+			"username": "Zampolit_V",
+			"gold": "25 100"
+		},
+		{
+			"username": "Vityaz_217",
+			"gold": "5 600"
+		},
+		{
+			"username": "Armor_4Radik",
+			"gold": "12 300"
+		},
+		{
+			"username": "PRO_Stvol_TM",
+			"gold": "4 200"
+		},
+		{
+			"username": "Lutyi_Bobr",
+			"gold": "8 500"
+		},
+		{
+			"username": "Stalnoy_Dany",
+			"gold": "18 500"
+		},
+		{
+			"username": "Koshmar_666",
+			"gold": "5 600"
+		},
+		{
+			"username": "Rikoshet_Vlad",
+			"gold": "15 200"
+		},
+		{
+			"username": "Bozhenka_ROSTO",
+			"gold": "21 700"
+		},
+		{
+			"username": "SOTYI_408",
+			"gold": "5 600"
+		},
+		{
+			"username": "Garan_Val",
+			"gold": "3 600"
+		},
+		{
+			"username": "Tankist_ROSTO",
+			"gold": "16 200"
+		},
+		{
+			"username": "Prizrak_04",
+			"gold": "6 500"
+		},
+		{
+			"username": "Danii_Master",
+			"gold": "11 300"
 		},
 		{
 			"username": "Zampolit_V",
@@ -81,17 +137,17 @@
 		"nicknameOverrides": {},
 		"_comment3": "Переопределение вероятностей для конкретных ников. Ключ - ник пользователя, значение - объект с вероятностями для каждого сегмента (в процентах). Сумма должна быть 100%.",
 		"nicknameProbabilityOverrides": {
-			"228PODKRUT": {
-				"gold": 10,
-				"black1": 13,
-				"black2": 13,
-				"black3": 12,
-				"blue1": 2,
-				"blue2": 2,
-				"blue3": 6,
-				"red1": 14,
-				"red2": 14,
-				"red3": 14
+			"Boss_Na_Golde": {
+				"gold": 45,
+				"black1": 3,
+				"black2": 3,
+				"black3": 4,
+				"blue1": 0,
+				"blue2": 0,
+				"blue3": 0,
+				"red1": 15,
+				"red2": 15,
+				"red3": 15
 			}
 		}
 	},
@@ -141,28 +197,28 @@
 	"_comment_promo": "Промокоды для получения бесплатных вращений",
 	"promoCodes": [
 		{
-			"code": "FREE5SPINS",
-			"spins": 5,
+			"code": "1SPIN_ojle5",
+			"spins": 1,
 			"active": true
 		},
 		{
-			"code": "WELCOME10",
-			"spins": 10,
+			"code": "4SPIN_ohte5",
+			"spins": 4,
 			"active": true
 		},
 		{
-			"code": "BONUS3",
-			"spins": 3,
-			"active": true
-		},
-		{
-			"code": "GOLDENSPIN",
+			"code": "7SPIN_oj6s",
 			"spins": 7,
 			"active": true
 		},
 		{
-			"code": "TESTCODE",
-			"spins": 1,
+			"code": "11SPINS_oa3t2",
+			"spins": 11,
+			"active": true
+		},
+		{
+			"code": "TESTSPINS_klaim228",
+			"spins": 20,
 			"active": false
 		}
 	]
